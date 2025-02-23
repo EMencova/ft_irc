@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/02/23 21:36:56 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/02/23 21:39:44 by eliskam          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,27 @@
 
 
 
-int main(int ac, char **av)
+Server::Server(){};
+
+Server::Server(int port_input, const std::string &pswrd)
 {
-    int port;
-    std::string pswrd = av[2];
-    std::istringstream port_input(av[1]);
-    
-    if(ac != 3)
-    {
-        std::cerr<<"Bad amount of arguments! Need 2 -> <port> <password>"<<std::endl;
-        return (EXIT_FAILURE);
-    }
-    
-    if (!(port_input >> port) || !port_input.eof() || port < 1024 || port > 65535)
-    {
-		std::cout << "Invalid input for port number!"<<std::endl;
-		return (EXIT_FAILURE);
-	}
-
-    
-    
-    
-
     
 }
+
+Server::Server(const Server &original)
+{
+    
+}
+
+Server &Server::operator=(const Server &original)
+{
+    if (this != &original)
+    {
+        
+    }
+    return(*this);
+}
+
+Server::~Server(){};
+
+

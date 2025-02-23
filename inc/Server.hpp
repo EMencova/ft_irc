@@ -1,40 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/02/23 21:36:56 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/02/23 21:39:16 by eliskam          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./inc/Server.hpp"
+#pragma once
 
+#include <iostream>
+#include <vector>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <poll.h>
+#include <csignal>
+#include <sstream>
 
-
-int main(int ac, char **av)
+class Server
 {
-    int port;
-    std::string pswrd = av[2];
-    std::istringstream port_input(av[1]);
-    
-    if(ac != 3)
-    {
-        std::cerr<<"Bad amount of arguments! Need 2 -> <port> <password>"<<std::endl;
-        return (EXIT_FAILURE);
-    }
-    
-    if (!(port_input >> port) || !port_input.eof() || port < 1024 || port > 65535)
-    {
-		std::cout << "Invalid input for port number!"<<std::endl;
-		return (EXIT_FAILURE);
-	}
+    private:
+        
 
+    public:
+        Server();
+        Server(int port_input, const std::string &pswrd);
+        Server(const Server &original);
+        Server &operator=(const Server &original);
+        ~Server();
     
     
-    
-
-    
-}
+};
