@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/01 23:16:04 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/01 23:43:51 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Server::~Server(){};
 
 
 int Server::createNewSocket(){
-		// server: fds, memset(), bind(), listen(), accept()
+	// server: fds, memset(), bind(), listen(), accept()
 	// client:
 
 	int socket_fd;
@@ -36,8 +36,7 @@ int Server::createNewSocket(){
 // 	struct  in_addr sin_addr;
 // 	char            sin_zero[8];
 // };
-	struct sockaddr_in server_sock;
-	socklen_t server_addr;
+	struct sockaddr_in server_addr;
 
 	if ((socket_fd = socket(AF_INET, SOCK_STREAM , 0)) < 0){
 		std::cerr << ("socket_fd failed");
@@ -45,14 +44,14 @@ int Server::createNewSocket(){
 		return (1);
 	}
 
-	memset(&server_sock, 0, sizeof(server_sock));
+	memset(&server_addr, 0, sizeof(server_addr));
 
-	server_sock.sin_addr.s_addr = INADDR_ANY;
-	server_sock.sin_family = AF_INET;
-	server_sock.sin_port = htons(port);
-	// server_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(std::stoi(_port));
+	// server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if (bind(socket_fd, (sockaddr *) &server_sock, sizeof(server_sock)) < 0){
+	if (bind(socket_fd, (sockaddr *) &server_addr, sizeof(server_addr)) < 0){
 		perror ("bind failed");
 		close (socket_fd);
 		return (1);
@@ -64,5 +63,5 @@ int Server::createNewSocket(){
 		return (1);
 	}
 
-	std::cout << "server listening on: " << port << std::endl;
+	return socket_fd;
 }
