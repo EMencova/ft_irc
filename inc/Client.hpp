@@ -6,6 +6,9 @@ class Client
 {
 
     private:
+    std::string _nickname;
+    int         _socket;
+    bool        _connected;
 
 
     public:
@@ -14,6 +17,18 @@ class Client
         Client(const Client &original);
         Client &operator=(const Client &original);
         ~Client();
-        std::string getNick();
+
+        std::string _buffer;
+        bool _messageComplete;
+        std::string _msg;
+
+
+        std::string getNickname() const;
+        int     getSocket() const;
+        bool    getConnected() const;
+        bool    processInput();
+
+
+        void commandQuit(std::vector<Client *> &clients, std::string const &reason);
 
 };
