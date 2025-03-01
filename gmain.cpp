@@ -8,7 +8,7 @@
 #include <string.h>
 
 int main () {
-	// server: memset(), bind(), listen(), accept()
+	// server: fds, memset(), bind(), listen(), accept()
 	// client:
 
 	int server_fd;
