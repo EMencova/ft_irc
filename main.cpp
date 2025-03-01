@@ -6,7 +6,7 @@
 /*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/02/23 21:54:21 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/01 20:59:13 by eliskam          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,17 @@ int main(int ac, char **av)
 		std::cerr << "Invalid input for port number!"<<std::endl;
 		return (EXIT_FAILURE);
 	}
+
+    Server ft_irc(port,pswrd);
+
+    //need sig handling
+    
+
+    if(!ft_irc.irc_started())
+    {
+        std::cout<<"Server starting error!"<<std::endl;
+        return (EXIT_FAILURE);
+    }
     
 
     
