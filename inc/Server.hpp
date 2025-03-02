@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 08:46:19 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 11:25:10 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class Server
 
 		std::vector<pollfd>			_pollfds;
 		std::map<int, Client *>		_clients;
-		// std::vector<Channel *>		_channels;
+		std::vector<Channel *>		_channels;
 		// CommandHandler*				_commandHandler;
 
 	public:
@@ -63,6 +63,7 @@ class Server
 		void thisClientConnect();
 		void thisClientDisconnect(int client_fd);
 		void thisClientMessage(int client_fd);
-
-
+		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
+		Channel *getChannelByName(std::string &channel_name);
+		Client *getClientByFd(int client_fd);
 };

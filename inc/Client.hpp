@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 08:49:34 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 09:09:08 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,12 @@ class Client {
 	public:
 		Client(int fd, const std::string &pswrd);
 		~Client();
-		// void						thisClientDisconnect(int fd);
-		// void						thisClientConnect();
-		// void						thisClientMessage(int fd);
 
+		void readMessage();
+		void sendMessage();
+		void addChannel(Channel *channel);
 
-}
+		std::vector<Channel *> getChannels();
+};
 
 #endif

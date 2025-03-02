@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 09:03:45 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 11:29:12 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,11 @@ void Server::startServer(){
 	}
 }
 
+std::string Server::readMessage(){
+	std::string message;
+	std::getline(std::cin, message);
+	return message;
+}
 void Server::thisClientConnect(){
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);
@@ -147,3 +152,25 @@ void Server::thisClientDisconnect(int client_fd){
 	delete client;
 }
 
+void Server::thisClientMessage(int client_fd){
+	Client *client = _clients[client_fd];
+	client->readMessage();
+	client->sendMessage();
+}
+
+Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client){
+	Channel *new_channel = new Channel(channel_name, channel_password, client);
+	_channels.push_back(new_channel);
+	client->addChannel(new_channel);
+}
+
+Channel *Server::getChannelByName(std::string &channel_name){
+	for (Channel *channel : _channels)
+		if (channel->getName() == channel_name)
+			return channel;
+	return nullptr;
+}
+
+Client *Server::getClientByFd(int client_fd){
+	return _clients[client_fd];
+}
