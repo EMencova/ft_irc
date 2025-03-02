@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 16:06:56 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 16:11:55 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,20 @@ int main(int argc, char **argv)
 	std::istringstream port_input(argv[1]);
 
 	try {
-		if(argc != 3)
-		{
+		if(argc != 3) {
 			std::cerr<<"Bad amount of arguments! Need 2 -> <port> <password>"<<std::endl;
 			return (EXIT_FAILURE);
 		}
 
-		if (!(port_input >> port) || !port_input.eof() || port < 1024 || port > 65535)
-		{
+		else if (!(port_input >> port) || !port_input.eof() || port < 1024 || port > 65535) {
 			std::cout << "Invalid input for port number!"<<std::endl;
 			return (EXIT_FAILURE);
 		}
-		Server server(argv[1], argv[2]);
-		server.startServer();
-		return 0;
+		else {
+			Server server(argv[1], argv[2]);
+			server.startServer();
+			return 0;
+		}
 
 	} catch (const std::exception &ex) {
 		std::cerr << ex.what() << std::endl;

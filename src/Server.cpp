@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 15:58:29 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 17:21:26 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,14 +88,12 @@ void Server::startServer(){
 			if ((p_it->revents & POLLHUP) == POLLHUP)
 				thisClientDisconnect(p_it->fd);
 
-			if ((p_it->revents & POLLIN) == POLLIN)
+			if ((p_it->revents & POLLIN) == POLLIN) {
 				if (p_it->fd == _socket) {
 					thisClientConnect();
-					break;
+				} else {
+					thisClientMessage(p_it->fd);
 				}
-
-			if (p_it->revents == POLLOUT) {
-				thisClientMessage(p_it->fd);
 			}
 			else {
 				std::cerr << "Unknown event" << std::endl;
@@ -106,7 +104,7 @@ void Server::startServer(){
 
 std::string Server::readMessage(int client_fd){
 	std::string message;
-	std::getline(std::cin, message);
+	// std::getline(std::cin, message);
 	char BUFFER[1024];
 	bzero(BUFFER, 1024);
 
