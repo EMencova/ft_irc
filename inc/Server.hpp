@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 12:16:16 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 15:54:02 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <netdb.h>
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 #define MAXCLIENT 1000
 
@@ -38,6 +39,7 @@ class Server
 {
 	private:
 		typedef std::vector<pollfd>::iterator pollfds_iterator;
+		typedef std::vector<Channel *>::iterator channels_iterator;
 		int							_running;
 		int							_socket;
 

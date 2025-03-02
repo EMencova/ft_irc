@@ -6,13 +6,12 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 12:42:08 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 15:58:54 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
-
 #include <vector>
 #include <string>
 #include <sys/poll.h>
@@ -26,6 +25,7 @@
 
 #include "Channel.hpp"
 
+class Channel;
 class Client {
 	private:
 		int							_fd;

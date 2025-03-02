@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 11:27:07 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 15:59:27 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,42 @@
 #define CHANNEL_HPP
 
 #include <iostream>
-#include <set>
+#include <vector>
 #include <string>
 #include "Client.hpp"
+#include <vector>
 
-
+class Client;
 
 class Channel {
 	private:
-		std::string					_name;
-		std::string					_password;
-		std::set<Client *>			_clients;
-
-		void removeClient(Client *client);
-		void addClient(Client *client);
+		typedef std::vector<Client *>::iterator clients_iterator;
+		std::string			_name;
+		std::string			_password;
+		std::vector<Client *>	_clients;
+		Client				*_admin;
 
 	public:
 		Channel();
-		Channel::Channel(std::string &name, std::string &password, Client *client);
+		Channel(std::string &name, std::string &password, Client *client);
 		Channel(const Channel &original);
 		~Channel();
 
 		Channel &operator=(const Channel &original);
+
+		Client *getAdmin();
 		std::string getName();
 		std::string	getpassword();
+		std::vector<Client *> getClients();
+
+		void setName(std::string name);
+		void setPassword(std::string password);
+		void setAdmin(Client *admin);
 
 
+		void addClient(Client *client);
+		void removeClient(Client *client);
+
+		void sendMessageToClients(std::string message, Client *client);
 };
 #endif

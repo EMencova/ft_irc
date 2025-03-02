@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 11:22:00 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 16:00:40 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,15 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 
+
 Channel::Channel() {
 }
 
 Channel::Channel(std::string &name, std::string &password, Client *client) {
 	_name = name;
 	_password = password;
-	_clients.insert(client);
+	_clients.push_back(client);
+	_admin = client;
 }
 
 Channel::~Channel() {
@@ -44,44 +46,45 @@ Channel &Channel::operator=(const Channel &original) {
 }
 
 void Channel::removeClient(Client *client) {
-	_clients.erase(client);
+	_clients.erase(std::find(_clients.begin(), _clients.end(), client));
 }
 
 void Channel::addClient(Client *client) {
-	_clients.insert(client);
+	_clients.push_back(client);
 }
 
-std::set<Client *> Channel::getClients() {
+std::vector<Client *> Channel::getClients(){
 	return _clients;
 }
 
-std::string Channel::getName() {
+std::string Channel::getName(){
 	return _name;
 }
 
-std::string Channel::getPassword() {
+std::string Channel::getpassword() {
 	return _password;
 }
 
-void Channel::setName(std::string &name) {
+void Channel::setName(std::string name) {
 	_name = name;
 }
 
-void Channel::setPassword(std::string &password) {
+void Channel::setPassword(std::string password) {
 	_password = password;
 }
 
-void Channel::sendMessageToClients(Client *client, std::string &message) {
-	for (Client *c : _clients) {
-		if (c == client)
+void Channel::sendMessageToClients(std::string message, Client *client){
+	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
+		if (*it == client)
 			continue;
-		send(c->getFd(), message.c_str(), message.size(), 0);
+		(*it)->sendMessage(message, (*it)->getFd());
 	}
 }
 
-void Channel::sendMessageToClients(std::string &message) {
-	for (Client *c : _clients) {
-		send(c->getFd(), message.c_str(), message.size(), 0);
-	}
+void Channel::setAdmin(Client *admin) {
+	_admin = admin;
 }
 
+Client *Channel::getAdmin() {
+	return _admin;
+}

@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 12:25:39 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 15:58:29 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,13 +124,13 @@ std::string Server::readMessage(int client_fd){
 		else
 			BUFFER[bytes_read] = '\0';
 		message.append(BUFFER);
+	}
 		// if (recv(fd, buffer, 100, 0) < 0) {
 		// 	if (errno != EWOULDBLOCK)
 		// 		throw std::runtime_error("Error while reading buffer from client.");
 		// }
 
 	return message;
-	}
 }
 
 void Server::thisClientConnect(){
@@ -152,7 +152,7 @@ void Server::thisClientConnect(){
 	else
 		std::cerr << "New connection from unknown host" << std::endl;
 
-	Client *new_client = new Client(client_fd, _pswrd);
+	Client *new_client = new Client(client_fd, std::to_string(client_addr.sin_port), std::string(hostname));
 	_clients[client_fd] = new_client;
 }
 
@@ -178,20 +178,21 @@ void Server::thisClientDisconnect(int client_fd){
 
 void Server::thisClientMessage(int client_fd){
 	Client *client = _clients[client_fd];
-	client->readMessage();
-	client->sendMessage();
+	client->readMessage(client_fd);
 }
 
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client){
 	Channel *new_channel = new Channel(channel_name, channel_password, client);
 	_channels.push_back(new_channel);
-	client->addChannel(new_channel);
+	client->setChannel(new_channel);
+
+	return new_channel;
 }
 
 Channel *Server::getChannelByName(std::string &channel_name){
-	for (Channel *channel : _channels)
-		if (channel->getName() == channel_name)
-			return channel;
+	for (channels_iterator ch_it = _channels.begin(); ch_it != _channels.end(); ch_it++)
+		if ((*ch_it)->getName() == channel_name)
+			return *ch_it;
 	return nullptr;
 }
 
