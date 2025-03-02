@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 06:47:58 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 08:46:19 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@
 #include <string.h>
 #include <vector>
 #include <map>
+#include <netdb.h>
+
+#include "Client.hpp"
+
 #define MAXCLIENT 1000
 
 
@@ -42,7 +46,7 @@ class Server
 		const std::string			_pswrd;
 
 		std::vector<pollfd>			_pollfds;
-		// std::map<int, Client *>		_clients;
+		std::map<int, Client *>		_clients;
 		// std::vector<Channel *>		_channels;
 		// CommandHandler*				_commandHandler;
 
@@ -56,5 +60,9 @@ class Server
 
 		int createNewSocket();
 		void startServer();
+		void thisClientConnect();
+		void thisClientDisconnect(int client_fd);
+		void thisClientMessage(int client_fd);
+
 
 };
