@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 11:29:12 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 12:25:39 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,11 +104,35 @@ void Server::startServer(){
 	}
 }
 
-std::string Server::readMessage(){
+std::string Server::readMessage(int client_fd){
 	std::string message;
 	std::getline(std::cin, message);
+	char BUFFER[1024];
+	bzero(BUFFER, 1024);
+
+	while (!std::strstr(BUFFER, "\r\n")) {
+		bzero(BUFFER, 1024);
+		ssize_t bytes_read = read(client_fd, BUFFER, sizeof(BUFFER) - 1);
+
+		if (bytes_read < 0) {
+			if (errno != EWOULDBLOCK && errno != EAGAIN) {
+				perror("read failed in client socket incoming data");
+				close(client_fd);
+				// client_fd = -1;
+			}
+		}
+		else
+			BUFFER[bytes_read] = '\0';
+		message.append(BUFFER);
+		// if (recv(fd, buffer, 100, 0) < 0) {
+		// 	if (errno != EWOULDBLOCK)
+		// 		throw std::runtime_error("Error while reading buffer from client.");
+		// }
+
 	return message;
+	}
 }
+
 void Server::thisClientConnect(){
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);

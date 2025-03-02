@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 11:25:10 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 12:16:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,6 @@ class Server
 		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
 		Channel *getChannelByName(std::string &channel_name);
 		Client *getClientByFd(int client_fd);
+		std::string readMessage(int client_fd);
 };
+
