@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/01 23:15:57 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 06:47:58 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 class Server
 {
 	private:
+		typedef std::vector<pollfd>::iterator pollfds_iterator;
 		int							_running;
 		int							_socket;
 
@@ -54,5 +55,6 @@ class Server
 		~Server();
 
 		int createNewSocket();
+		void startServer();
 
 };

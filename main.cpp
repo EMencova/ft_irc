@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/01 22:51:22 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 06:24:06 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 			return (EXIT_FAILURE);
 		}
 		Server server(argv[1], argv[2]);
-		server.start();
+		// server.start();
 		return 0;
 
 	} catch (const std::exception &ex) {

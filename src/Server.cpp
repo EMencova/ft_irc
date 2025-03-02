@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/01 23:43:51 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/02 07:08:46 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,42 @@ int Server::createNewSocket(){
 	}
 
 	return socket_fd;
+}
+
+void Server::startServer(){
+	pollfd server_fd = {_socket, POLLIN, 0};
+	_pollfds.push_back(server_fd);
+
+	std::cout << "server listening on: " << _port << std::endl;
+
+	while (_running)
+	{
+		// block indefinitely until an event occurs poll()
+		if (poll(_pollfds.data(), _pollfds.size(), -1) < 0){
+			perror("poll count");
+			break;
+		}
+
+		// Check if the listening socket is ready (new connection)
+		for (pollfds_iterator p_it = _pollfds.begin(); p_it != _pollfds.end(); p_it++){
+			if (p_it->revents == 0)
+				continue;
+
+			if ((p_it->revents & POLLHUP) == POLLHUP)
+				thisClientDisconnect(p_it->fd);
+
+			if ((p_it->revents & POLLIN) == POLLIN)
+				if (p_it->fd == _socket) {
+					thisClientConnect();
+					break;
+				}
+
+			if (p_it->revents == POLLOUT) {
+				thisClientWrite(p_it->fd);
+			}
+			else {
+				std::cerr << "Unknown event" << std::endl;
+			}
+		}
+	}
 }
