@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/03 07:51:54 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 08:13:28 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,29 +106,37 @@ std::string Server::readMessage(int client_fd) {
 	char buffer[1024];
 	ssize_t bytes_read;
 
-	while ((bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0) {
-		buffer[bytes_read] = '\0';
-		message.append(buffer);
+	while (true) {
+		bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
-		// Check if the message ends with "\r\n"
-		if (message.find("\r\n") != std::string::npos) {
-			break;
+		if (bytes_read > 0) {
+			buffer[bytes_read] = '\0';
+			message.append(buffer);
+			if (message.find("\r\n") != std::string::npos) {
+				break; // Full message received
+			}
+		} else if (bytes_read == 0) {
+			std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
+			thisClientDisconnect(client_fd);
+			return "";
+		} else {
+			if (errno == EWOULDBLOCK || errno == EAGAIN) {
+				break;
+			} else {
+				perror("recv failed");
+				thisClientDisconnect(client_fd);
+				return "";
+			}
 		}
 	}
 
-	if (bytes_read <= 0) {
-		// Client disconnected or error occurred
-		if (bytes_read == 0) {
-			std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
-		} else {
-			perror("recv failed");
-		}
-		thisClientDisconnect(client_fd);
+	// Print the received message to the server terminal
+	if (!message.empty()) {
+		std::cout << "Message from FD " << client_fd << ": " << message << std::endl;
 	}
 
 	return message;
 }
-
 
 void Server::thisClientConnect() {
 	struct sockaddr_in client_addr;
@@ -198,9 +206,14 @@ void Server::thisClientDisconnect(int client_fd) {
 	std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
 }
 
-void Server::thisClientMessage(int client_fd){
-	Client *client = _clients[client_fd];
-	client->readMessage(client_fd);
+void Server::thisClientMessage(int client_fd) {
+	std::string message = readMessage(client_fd);
+	if (!message.empty()) {
+		Client *client = _clients[client_fd];
+		if (client->getChannel()) {
+			client->getChannel()->sendMessageToClients(message, client);
+		}
+	}
 }
 
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client){
