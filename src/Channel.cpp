@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 16:00:40 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 07:46:18 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,19 @@ Channel &Channel::operator=(const Channel &original) {
 	return *this;
 }
 
-void Channel::removeClient(Client *client) {
-	_clients.erase(std::find(_clients.begin(), _clients.end(), client));
-}
-
 void Channel::addClient(Client *client) {
 	_clients.push_back(client);
+	client->setChannel(this);
+	std::cout << "Client " << client->getNickname() << " joined channel " << _name << std::endl;
+}
+
+void Channel::removeClient(Client *client) {
+	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
+	if (it != _clients.end()) {
+		_clients.erase(it);
+		client->setChannel(nullptr);
+		std::cout << "Client " << client->getNickname() << " left channel " << _name << std::endl;
+	}
 }
 
 std::vector<Client *> Channel::getClients(){
@@ -73,7 +80,7 @@ void Channel::setPassword(std::string password) {
 	_password = password;
 }
 
-void Channel::sendMessageToClients(std::string message, Client *client){
+void Channel::sendMessageToClients(std::string message, Client *client) {
 	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if (*it == client)
 			continue;

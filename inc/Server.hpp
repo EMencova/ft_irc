@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/02 15:54:02 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 07:42:08 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <vector>
 #include <map>
 #include <netdb.h>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -65,6 +66,7 @@ class Server
 		void thisClientConnect();
 		void thisClientDisconnect(int client_fd);
 		void thisClientMessage(int client_fd);
+
 		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
 		Channel *getChannelByName(std::string &channel_name);
 		Client *getClientByFd(int client_fd);

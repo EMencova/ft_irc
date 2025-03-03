@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 15:59:27 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 07:42:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <string>
 #include "Client.hpp"
 #include <vector>
+#include <algorithm>
 
 class Client;
 

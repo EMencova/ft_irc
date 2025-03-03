@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/02 15:58:54 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 07:42:12 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <algorithm>
 
 #include "Channel.hpp"
 
@@ -35,6 +36,7 @@ class Client {
 		std::string					_nickname;
 		Channel						*_channel;
 		bool						_registered;
+		std::string					_partialMessage; //CGM
 
 	public:
 		Client ();
