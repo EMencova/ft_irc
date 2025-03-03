@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 07:42:16 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 09:00:10 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ class Client;
 class Channel {
 	private:
 		typedef std::vector<Client *>::iterator clients_iterator;
-		std::string			_name;
-		std::string			_password;
+		std::string				_name;
+		std::string				_password;
 		std::vector<Client *>	_clients;
-		Client				*_admin;
+		Client					*_admin;
 
 	public:
 		Channel();
@@ -46,7 +46,6 @@ class Channel {
 		void setName(std::string name);
 		void setPassword(std::string password);
 		void setAdmin(Client *admin);
-
 
 		void addClient(Client *client);
 		void removeClient(Client *client);

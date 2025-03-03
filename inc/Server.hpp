@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/03 07:42:08 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 08:58:54 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ class Server
 		void thisClientDisconnect(int client_fd);
 		void thisClientMessage(int client_fd);
 
+		void addClientToChannel(Client *client, Channel *channel);
 		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
 		Channel *getChannelByName(std::string &channel_name);
 		Client *getClientByFd(int client_fd);
