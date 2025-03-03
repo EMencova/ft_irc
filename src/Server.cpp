@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/03 09:33:45 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 09:44:28 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,14 +74,12 @@ void Server::startServer() {
 	std::cout << "Server listening on port: " << _port << std::endl;
 
 	while (_running) {
-		// Block indefinitely until an event occurs
 		int poll_count = poll(_pollfds.data(), _pollfds.size(), -1);
 		if (poll_count < 0) {
 			perror("poll failed");
 			break;
 		}
 
-		// Iterate through all FDs in the polling list
 		for (size_t i = 0; i < _pollfds.size(); i++) {
 			if (_pollfds[i].revents & POLLIN) {
 				if (_pollfds[i].fd == _socket) {
@@ -94,7 +92,6 @@ void Server::startServer() {
 			}
 
 			if (_pollfds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) {
-				// Client disconnected or error occurred
 				thisClientDisconnect(_pollfds[i].fd);
 			}
 		}

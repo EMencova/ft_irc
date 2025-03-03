@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 07:52:11 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 09:43:58 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,18 +99,15 @@ void Client::readMessage(int fd) {
 	char tempBuffer[1024];
 	ssize_t bytes_read = recv(fd, tempBuffer, sizeof(tempBuffer) - 1, 0);
 	if (bytes_read <= 0) {
-		// Handle error or disconnection.
 		return;
 	}
 	tempBuffer[bytes_read] = '\0';
-	_partialMessage += tempBuffer;  // _partialMessage is a std::string member
+	_partialMessage += tempBuffer;
 
 	size_t pos;
-	// Process each complete message terminated by "\r\n"
 	while ((pos = _partialMessage.find("\r\n")) != std::string::npos) {
 		std::string completeMsg = _partialMessage.substr(0, pos);
 		std::cout << "Received: " << completeMsg << std::endl;
-		// Remove the processed message from _partialMessage.
 		_partialMessage.erase(0, pos + 2);
 	}
 }
