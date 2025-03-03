@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 07:46:18 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 08:41:23 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,11 +80,12 @@ void Channel::setPassword(std::string password) {
 	_password = password;
 }
 
-void Channel::sendMessageToClients(std::string message, Client *client) {
+//confirm
+void Channel::sendMessageToClients(const std::string message, Client *sender) {
 	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
-		if (*it == client)
-			continue;
-		(*it)->sendMessage(message, (*it)->getFd());
+		if (*it != sender) {
+			(*it)->sendMessage(message, (*it)->getFd());
+		}
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/03 08:13:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/03 08:40:08 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ std::string Server::readMessage(int client_fd) {
 			buffer[bytes_read] = '\0';
 			message.append(buffer);
 			if (message.find("\r\n") != std::string::npos) {
-				break; // Full message received
+				break;
 			}
 		} else if (bytes_read == 0) {
 			std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
@@ -130,9 +130,8 @@ std::string Server::readMessage(int client_fd) {
 		}
 	}
 
-	// Print the received message to the server terminal
 	if (!message.empty()) {
-		std::cout << "Message from FD " << client_fd << ": " << message << std::endl;
+		std::cout << "Message from FD " << client_fd << ": " << message << "\r\n";
 	}
 
 	return message;
@@ -177,7 +176,12 @@ void Server::thisClientConnect() {
 		Client *new_client = new Client(client_fd, std::to_string(client_addr.sin_port), std::string(hostname));
 		_clients[client_fd] = new_client;
 
-		std::cout << "New client connected: FD " << client_fd << std::endl;
+		new_client->setNickname("User" + std::to_string(client_fd));
+		_clients[client_fd] = new_client;
+
+		std::cout << "New client connected: FD " << client_fd << ", Nickname: " << new_client->getNickname() << std::endl;
+
+		// std::cout << "New client connected: FD " << client_fd << std::endl;
 	} else {
 		std::cout << "Max clients reached, rejecting new connection." << std::endl;
 		close(client_fd);
@@ -208,19 +212,63 @@ void Server::thisClientDisconnect(int client_fd) {
 
 void Server::thisClientMessage(int client_fd) {
 	std::string message = readMessage(client_fd);
+
 	if (!message.empty()) {
-		Client *client = _clients[client_fd];
-		if (client->getChannel()) {
-			client->getChannel()->sendMessageToClients(message, client);
+		Client *sender = _clients[client_fd];
+		std::string sender_nickname = sender->getNickname();
+
+		// Check if the message is a private message
+		if (message.find("/msg ") == 0) {
+			// Parse the target nickname and message
+			size_t space_pos = message.find(' ', 5);
+			if (space_pos != std::string::npos) {
+				std::string target_nickname = message.substr(5, space_pos - 5);
+				std::string private_message = message.substr(space_pos + 1);
+
+				// Find the target client
+				Client *target = nullptr;
+				for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+					if (it->second->getNickname() == target_nickname) {
+						target = it->second;
+						break;
+					}
+				}
+
+				if (target) {
+					// Send the private message to the target client
+					std::string formatted_message = "[PM from " + sender_nickname + "]: " + private_message + "\r\n";
+					target->sendMessage(formatted_message, target->getFd());
+				} else {
+					// Notify the sender that the target client was not found
+					std::string error_message = "Error: Client '" + target_nickname + "' not found.\r\n";
+					sender->sendMessage(error_message, sender->getFd());
+				}
+			}
+		} else {
+			// Broadcast the message to all clients in the same channel
+			if (sender->getChannel()) {
+				std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
+				sender->getChannel()->sendMessageToClients(formatted_message, sender);
+			}
 		}
 	}
 }
+
+
+// void Server::thisClientMessage(int client_fd) {
+// 	std::string message = readMessage(client_fd);
+// 	if (!message.empty()) {
+// 		Client *client = _clients[client_fd];
+// 		if (client->getChannel()) {
+// 			client->getChannel()->sendMessageToClients(message, client);
+// 		}
+// 	}
+// }
 
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client){
 	Channel *new_channel = new Channel(channel_name, channel_password, client);
 	_channels.push_back(new_channel);
 	client->setChannel(new_channel);
-
 	return new_channel;
 }
 
