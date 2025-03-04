@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/03 09:44:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/04 13:09:24 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,9 @@ void Server::thisClientConnect() {
 		}
 
 		Client *new_client = new Client(client_fd, std::to_string(client_addr.sin_port), std::string(hostname));
+
+		authenticateClient(new_client);
+
 		_clients[client_fd] = new_client;
 
 		new_client->setNickname("User" + std::to_string(client_fd));
@@ -206,6 +209,7 @@ void Server::thisClientDisconnect(int client_fd) {
 
 	std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
 }
+
 void Server::thisClientMessage(int client_fd) {
 	std::string message = readMessage(client_fd);
 
@@ -257,6 +261,48 @@ void Server::thisClientMessage(int client_fd) {
 			}
 		}
 	}
+}
+
+void Server::authenticateClient(Client *client) {
+    std::string request_password = "Please enter the password: \r\n";
+    send(client->getFd(), request_password.c_str(), request_password.size(), 0);
+
+    std::string password;
+    while (true) {
+        password = readMessage(client->getFd());
+
+        if (!password.empty()) {
+            break; // Password received
+        }
+
+        // Wait for a short time before trying again (optional)
+        usleep(100000); // Sleep for 100ms
+    }
+
+    // Debug: Print the received password
+    std::cout << "Debug: Received password from FD " << client->getFd() << ": '" << password << "'" << std::endl;
+
+    // Remove the delimiter ("\r\n" or "\n") from the password
+    if (!password.empty() && password.back() == '\n') {
+        password.pop_back(); // Remove the newline character
+    }
+    if (!password.empty() && password.back() == '\r') {
+        password.pop_back(); // Remove the carriage return character
+    }
+
+    // Debug: Print the cleaned password
+    std::cout << "Debug: Cleaned password: '" << password << "'" << std::endl;
+
+    // Debug: Print the server's stored password
+    std::cout << "Debug: Server password: '" << _pswrd << "'" << std::endl;
+
+    // Check if the password is correct
+    if (password == _pswrd) {
+        std::cout << "Client authenticated successfully." << std::endl;
+    } else {
+        std::cerr << "Client authentication failed. Disconnecting client." << std::endl;
+        thisClientDisconnect(client->getFd());
+    }
 }
 
 // void Server::thisClientMessage(int client_fd) {
