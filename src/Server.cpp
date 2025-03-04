@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/04 13:09:24 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/04 15:03:12 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,134 +213,77 @@ void Server::thisClientDisconnect(int client_fd) {
 void Server::thisClientMessage(int client_fd) {
 	std::string message = readMessage(client_fd);
 
-	if (!message.empty()) {
-		Client *sender = _clients[client_fd];
-		std::string sender_nickname = sender->getNickname();
+	if (message.empty()) {
+		return;
+	}
 
-		if (message.find("/msg ") == 0) {
-			size_t space_pos = message.find(' ', 5);
-			if (space_pos != std::string::npos) {
-				std::string target_nickname = message.substr(5, space_pos - 5);
-				std::string private_message = message.substr(space_pos + 1);
+	Client *sender = _clients[client_fd];
 
-				Client *target = nullptr;
-				for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-					if (it->second->getNickname() == target_nickname) {
-						target = it->second;
-						break;
-					}
-				}
-				if (target) {
-					std::string formatted_message = "[PM from " + sender_nickname + "]: " + private_message + "\r\n";
-					target->sendMessage(formatted_message, target->getFd());
-				} else {
-					std::string error_message = "Error: Client '" + target_nickname + "' not found.\r\n";
-					sender->sendMessage(error_message, sender->getFd());
-				}
-			}
-		} else if (message.find("/join ") == 0) {
-			std::string channel_name = message.substr(6);
-			Channel *channel = getChannelByName(channel_name);
-			if (channel) {
-				addClientToChannel(sender, channel);
-				std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
-				sender->sendMessage(join_message, sender->getFd());
-			} else {
-				// Create a new channel if it doesn't exist
-				std::string channel_password = ""; // You can modify this to handle passwords
-				channel = createNewChannel(channel_name, channel_password, sender);
-				std::string create_message = "Channel created: " + channel_name + "\r\n";
-				sender->sendMessage(create_message, sender->getFd());
-				std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
-				sender->sendMessage(join_message, sender->getFd());
-			}
-		} else {
-			if (sender->getChannel()) {
-				std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
-				sender->getChannel()->sendMessageToClients(formatted_message, sender);
-			}
+	std::string sender_nickname = sender->getNickname();
+
+	if (message.find("PRIVMSG ") == 0) {
+		privateMessageClient(sender, message);
+	} else if (message.find("JOIN ") == 0) {
+		joinChannel(sender, message);
+	} else {
+		if (sender->getChannel()) {
+			std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
+			sender->getChannel()->sendMessageToClients(formatted_message, sender);
 		}
 	}
 }
 
 void Server::authenticateClient(Client *client) {
-    std::string request_password = "Please enter the password: \r\n";
-    send(client->getFd(), request_password.c_str(), request_password.size(), 0);
+	int client_fd = client->getFd();
 
-    std::string password;
-    while (true) {
-        password = readMessage(client->getFd());
+	// Send a welcome message to the client
+	std::string welcome_message = "Welcome to the server. Please authenticate using the PASS command.\r\n";
+	send(client_fd, welcome_message.c_str(), welcome_message.size(), 0);
 
-        if (!password.empty()) {
-            break; // Password received
-        }
+	// Wait for the client to send the PASS command
+	std::string message;
+	while (true) {
+		message = readMessage(client_fd);
 
-        // Wait for a short time before trying again (optional)
-        usleep(100000); // Sleep for 100ms
-    }
+		if (!message.empty()) {
+			if (message.find("PASS ") == 0) {
+				std::string password = message.substr(5);
+				if (!password.empty() && password.back() == '\n') {
+					password.pop_back();
+				}
+				if (!password.empty() && password.back() == '\r') {
+					password.pop_back();
+				}
 
-    // Debug: Print the received password
-    std::cout << "Debug: Received password from FD " << client->getFd() << ": '" << password << "'" << std::endl;
+				// Debug: Print the received password
+				std::cout << "Debug: Received password from FD " << client_fd << ": '" << password << "'" << std::endl;
 
-    // Remove the delimiter ("\r\n" or "\n") from the password
-    if (!password.empty() && password.back() == '\n') {
-        password.pop_back(); // Remove the newline character
-    }
-    if (!password.empty() && password.back() == '\r') {
-        password.pop_back(); // Remove the carriage return character
-    }
+				if (password == _pswrd) {
+					std::cout << "Client FD " << client_fd << " authenticated successfully." << std::endl;
+					client->setRegistered(true);
 
-    // Debug: Print the cleaned password
-    std::cout << "Debug: Cleaned password: '" << password << "'" << std::endl;
+					std::string success_message = "Authentication successful. You are now connected to the server.\r\n";
+					send(client_fd, success_message.c_str(), success_message.size(), 0);
+					break;
+				} else {
 
-    // Debug: Print the server's stored password
-    std::cout << "Debug: Server password: '" << _pswrd << "'" << std::endl;
+					std::string error_message = "Error: Wrong password. Disconnecting...\r\n";
+					send(client_fd, error_message.c_str(), error_message.size(), 0);
+					thisClientDisconnect(client_fd); //change this later to prompt for retry
+					return;
+				}
+			} else {
+				std::string error_message = "Error: You must authenticate using the PASS command.\r\n";
+				send(client_fd, error_message.c_str(), error_message.size(), 0);
+				thisClientDisconnect(client_fd);
+				return;
+			}
+		}
 
-    // Check if the password is correct
-    if (password == _pswrd) {
-        std::cout << "Client authenticated successfully." << std::endl;
-    } else {
-        std::cerr << "Client authentication failed. Disconnecting client." << std::endl;
-        thisClientDisconnect(client->getFd());
-    }
+		// (optional)
+		usleep(100000);
+	}
 }
-
-// void Server::thisClientMessage(int client_fd) {
-// 	std::string message = readMessage(client_fd);
-
-// 	if (!message.empty()) {
-// 		Client *sender = _clients[client_fd];
-// 		std::string sender_nickname = sender->getNickname();
-
-// 		if (message.find("/msg ") == 0) {
-// 			size_t space_pos = message.find(' ', 5);
-// 			if (space_pos != std::string::npos) {
-// 				std::string target_nickname = message.substr(5, space_pos - 5);
-// 				std::string private_message = message.substr(space_pos + 1);
-
-// 				Client *target = nullptr;
-// 				for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-// 					if (it->second->getNickname() == target_nickname) {
-// 						target = it->second;
-// 						break;
-// 					}
-// 				}
-// 				if (target) {
-// 					std::string formatted_message = "[PM from " + sender_nickname + "]: " + private_message + "\r\n";
-// 					target->sendMessage(formatted_message, target->getFd());
-// 				} else {
-// 					std::string error_message = "Error: Client '" + target_nickname + "' not found.\r\n";
-// 					sender->sendMessage(error_message, sender->getFd());
-// 				}
-// 			}
-// 		} else {
-// 			if (sender->getChannel()) {
-// 				std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
-// 				sender->getChannel()->sendMessageToClients(formatted_message, sender);
-// 			}
-// 		}
-// 	}
-// }
 
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client){
 	Channel *new_channel = new Channel(channel_name, channel_password, client);
@@ -364,4 +307,45 @@ void Server::addClientToChannel(Client *client, Channel *channel) {
 
 Client *Server::getClientByFd(int client_fd){
 	return _clients[client_fd];
+}
+
+void Server::privateMessageClient(Client *sender, std::string message) {
+	std::string sender_nickname = sender->getNickname();
+	size_t space_pos = message.find(' ', 8);
+	if (space_pos != std::string::npos) {
+		std::string target_nickname = message.substr(8, space_pos - 8);
+		std::string private_message = message.substr(space_pos + 1);
+		Client *target = nullptr;
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			if (it->second->getNickname() == target_nickname) {
+				target = it->second;
+				break;
+			}
+		}
+		if (target) {
+			std::string formatted_message = "[PM from " + sender_nickname + "]: " + private_message + "\r\n";
+			target->sendMessage(formatted_message, target->getFd());
+		} else {
+			std::string error_message = "Error: Client '" + target_nickname + "' not found.\r\n";
+			sender->sendMessage(error_message, sender->getFd());
+		}
+	}
+}
+
+void Server::joinChannel(Client *sender, std::string message) {
+	std::string channel_name = message.substr(6);
+	Channel *channel = getChannelByName(channel_name);
+	if (channel) {
+		addClientToChannel(sender, channel);
+		std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
+		sender->sendMessage(join_message, sender->getFd());
+	} else {
+		// Create a new channel if it doesn't exist
+		std::string channel_password = ""; // modify this to handle passwords
+		channel = createNewChannel(channel_name, channel_password, sender);
+		std::string create_message = "Channel created: " + channel_name + "\r\n";
+		sender->sendMessage(create_message, sender->getFd());
+		std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
+		sender->sendMessage(join_message, sender->getFd());
+	}
 }

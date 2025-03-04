@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/04 12:36:17 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/04 15:01:47 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,5 +73,8 @@ class Server
 		Client *getClientByFd(int client_fd);
 		std::string readMessage(int client_fd);
 		void authenticateClient(Client *client);
+
+		void privateMessageClient(Client *sender, std::string message);
+		void joinChannel(Client *client, std::string message);
 };
 
