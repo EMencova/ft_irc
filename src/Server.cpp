@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 11:37:54 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 15:46:59 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ void Server::thisClientConnect() {
 		_clients[client_fd] = new_client;
 
 		irc_log("New client connected: FD " + std::to_string(client_fd) +
-		        ", Nickname: " + new_client->getNickname());
+				", Nickname: " + new_client->getNickname());
 	} else {
 		irc_log("Max clients reached, rejecting new connection.");
 		close(client_fd);
@@ -211,17 +211,40 @@ void Server::thisClientDisconnect(int client_fd) {
 	irc_log("Client FD " + std::to_string(client_fd) + " disconnected.");
 }
 
+// /server add -auto -tls_pass 12345  localhost 9997
+// /CONNECT localhost 9997 12345 mac_canalik
+// /MSG real Hello
+// /JOIN #ch1
+// /MSG User7 helloy
+// /MSG #ch1 Message
+// /quit (IRC client leaves)
+
+// If you create a join the channel with #ch irssi would be able to
+// message everyone in the ch with /MSG #ch1 Message
+
 void Server::thisClientMessage(int client_fd, Client *sender) {
 	std::string message = readMessage(client_fd, sender);
 	if (message.empty())
 		return;
+	// Update sender pointer from the _clients map.
 	sender = _clients[client_fd];
+
+	// Trim leading and trailing whitespace.
+	message.erase(0, message.find_first_not_of(" \t\n\r"));
+	message.erase(message.find_last_not_of(" \t\n\r") + 1);
+
+	// Pre-registration handling.
 	if (!sender->getRegistered()) {
+		// Allow CAP commands.
+		if (message.compare(0, 3, "CAP") == 0) {
+			sender->sendMessage("CAP * LS :\r\n", client_fd);
+			return;
+		}
+		// Process PASS command.
 		if (message.find("PASS ") == 0) {
 			std::string password = message.substr(5);
 			while (!password.empty() && (password.back() == '\n' || password.back() == '\r'))
 				password.pop_back();
-
 			if (password == _pswrd) {
 				sender->setRegistered(true);
 				std::string welcome_message = RPL_WELCOME("client") + "\r\n";
@@ -233,15 +256,33 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 				thisClientDisconnect(client_fd);
 				return;
 			}
+		}
+		// Optionally allow pre-registration NICK/USER commands.
+		else if (message.find("NICK ") == 0) {
+			setNickname(sender, message);
+			return;
+		} else if (message.find("USER ") == 0) {
+			setUsername(sender, message);
+			return;
 		} else {
 			std::string error_message = ERR_NOTREGISTERED("server") + "\r\n";
 			sender->sendMessage(error_message, client_fd);
-			thisClientDisconnect(client_fd);
+			// Do not disconnect immediately so that the client has time to send the proper PASS.
 			return;
 		}
 	}
 
-	// Handle other commands only if client is registered
+	// For registered clients, handle PING commands.
+	if (message.find("PING ") == 0) {
+		std::string token = message.substr(5);
+		while (!token.empty() && (token.back() == '\n' || token.back() == '\r'))
+			token.pop_back();
+		std::string pong_response = "PONG :" + token + "\r\n";
+		sender->sendMessage(pong_response, client_fd);
+		return;
+	}
+
+	// Process other commands for registered clients.
 	if (message.find("PRIVMSG ") == 0) {
 		privateMessageClient(sender, message);
 	} else if (message.find("JOIN ") == 0) {
@@ -261,12 +302,14 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	} else if (message.find("MODE ") == 0) {
 		handleMode(sender, message);
 	} else {
+		// If the client is in a channel, broadcast the message.
 		if (sender->getChannel()) {
 			std::string formatted_message = "[" + sender->getNickname() + "]: " + message + "\r\n";
 			sender->getChannel()->sendMessageToClients(formatted_message, sender);
 		}
 	}
 }
+
 
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client) {
 	Channel *new_channel = new Channel(channel_name, channel_password, client);

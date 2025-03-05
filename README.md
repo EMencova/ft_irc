@@ -340,3 +340,222 @@ Testing the server
 - **Test Scenarios:**
   - Automate scenarios such as joining channels, sending messages, and using operator commands.
 
+
+
+
+
+
+
+
+To test your IRC server implementation, you can use one of the following IRC clients. These clients are widely used, easy to set up, and compatible with most IRC servers, including your custom server.
+
+
+******************************************
+
+**server add -auto -tls_pass 12345  localhost 9997*
+**CONNECT localhost 9997 12345 mac_canalik*
+**MSG real Hello*
+**JOIN #ch1*
+**MSG User7 helloy*
+**MSG #ch1 Message*
+**quit (IRC client leaves)*
+
+// If you create a join the channel with #ch irssi would be able to
+// message everyone in the ch with /MSG #ch1 Message
+**Test sednign PRIVMSG to irrssi client**
+**Modify channel creations so it must start with #**
+
+---
+
+### **1. `irssi` (Terminal-Based IRC Client)**
+`irssi` is a popular, lightweight, and highly customizable terminal-based IRC client. It works well for testing IRC servers.
+
+#### Installation:
+- **Linux**:
+  ```bash
+  sudo apt install irssi
+  ```
+- **macOS** (using Homebrew):
+  ```bash
+  brew install irssi
+  ```
+
+#### Usage:
+1. Start `irssi`:
+   ```bash
+   irssi
+   ```
+2. Connect to your server:
+   ```
+   /connect localhost 9990
+   ```
+3. Authenticate:
+   ```
+   /msg NickServ IDENTIFY <password>
+   ```
+4. Join a channel:
+   ```
+   /join #ch1
+   ```
+5. Send messages:
+   ```
+   /msg #ch1 Hello, world!
+   ```
+
+---
+
+### **2. `HexChat` (Graphical IRC Client)**
+`HexChat` is a user-friendly graphical IRC client available for Linux, Windows, and macOS.
+
+#### Installation:
+- **Linux**:
+  ```bash
+  sudo apt install hexchat
+  ```
+- **macOS** (using Homebrew):
+  ```bash
+  brew install --cask hexchat
+  ```
+- **Windows**: Download the installer from the [official website](https://hexchat.github.io/).
+
+#### Usage:
+1. Open `HexChat`.
+2. Add your server:
+   - Go to `Network List` > `Add`.
+   - Enter a name for your server (e.g., `MyServer`).
+   - Add a new server: `localhost/9990`.
+3. Connect to your server:
+   - Select your server and click `Connect`.
+4. Authenticate:
+   - If prompted, enter your password.
+5. Join a channel:
+   - Type `/join #ch1` in the input box.
+
+---
+
+### **3. `weechat` (Terminal-Based IRC Client)**
+`weechat` is another lightweight and extensible terminal-based IRC client.
+
+#### Installation:
+- **Linux**:
+  ```bash
+  sudo apt install weechat
+  ```
+- **macOS** (using Homebrew):
+  ```bash
+  brew install weechat
+  ```
+
+#### Usage:
+1. Start `weechat`:
+   ```bash
+   weechat
+   ```
+2. Connect to your server:
+   ```
+   /server add myserver localhost/9990
+   /connect myserver
+   ```
+3. Authenticate:
+   ```
+   /msg NickServ IDENTIFY <password>
+   ```
+4. Join a channel:
+   ```
+   /join #ch1
+   ```
+
+---
+
+### **4. `mIRC` (Windows IRC Client)**
+`mIRC` is a popular IRC client for Windows. It has a graphical interface and is easy to use.
+
+#### Installation:
+- Download the installer from the [official website](https://www.mirc.com/).
+
+#### Usage:
+1. Open `mIRC`.
+2. Add your server:
+   - Go to `Options` > `Connect` > `Servers`.
+   - Add a new server: `localhost` on port `9990`.
+3. Connect to your server:
+   - Select your server and click `Connect`.
+4. Authenticate:
+   - If prompted, enter your password.
+5. Join a channel:
+   - Type `/join #ch1` in the input box.
+
+---
+
+### **5. `Kiwi IRC` (Web-Based IRC Client)**
+`Kiwi IRC` is a web-based IRC client that you can use directly in your browser.
+
+#### Usage:
+1. Open [Kiwi IRC](https://kiwiirc.com/).
+2. Enter your server details:
+   - Server: `localhost`
+   - Port: `9990`
+   - Nickname: Choose a nickname.
+3. Click `Start`.
+4. Authenticate:
+   - If prompted, enter your password.
+5. Join a channel:
+   - Type `/join #ch1` in the input box.
+
+---
+
+### **6. `nc` (Netcat) or `telnet` (Basic Testing)**
+For quick testing, you can use `nc` (Netcat) or `telnet` to connect to your server and send raw IRC commands.
+
+#### Usage with `nc`:
+1. Connect to your server:
+   ```bash
+   nc localhost 9990
+   ```
+2. Authenticate:
+   ```
+   PASS 12345
+   NICK azeez
+   USER azeez 0 * :Azeez User
+   ```
+3. Join a channel:
+   ```
+   JOIN #ch1
+   ```
+4. Send messages:
+   ```
+   PRIVMSG #ch1 Hello, world!
+   ```
+
+#### Usage with `telnet`:
+1. Connect to your server:
+   ```bash
+   telnet localhost 9990
+   ```
+2. Authenticate:
+   ```
+   PASS 12345
+   NICK azeez
+   USER azeez 0 * :Azeez User
+   ```
+3. Join a channel:
+   ```
+   JOIN #ch1
+   ```
+4. Send messages:
+   ```
+   PRIVMSG #ch1 Hello, world!
+   ```
+
+---
+
+### **Recommendation**
+- For **quick testing**, use `nc` or `telnet`.
+- For **interactive testing**, use `irssi` or `weechat` (terminal-based) or `HexChat` (graphical).
+- For **web-based testing**, use `Kiwi IRC`.
+
+Let me know if you need further assistance!
+
+
+
+
