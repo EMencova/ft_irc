@@ -1,4 +1,4 @@
-NAME = ircserver
+NAME = ircserv
 
 CC = c++
 
@@ -8,8 +8,6 @@ SRC = main.cpp \
 	src/Server.cpp \
 	src/Client.cpp \
 	src/Channel.cpp
-
-
 
 OBJ = $(SRC:.cpp=.o)
 

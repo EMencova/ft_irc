@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 07:42:02 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 08:23:57 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class Client {
 		Client(int fd, std::string port, std::string host);
 		~Client();
 
-		//getters
 		int getFd();
 		std::string getHost();
 		std::string getPort();
@@ -53,8 +52,8 @@ class Client {
 		Channel *getChannel();
 		bool getRegistered();
 		bool get_IsOperator();
+		std::string &getBuffer();
 
-		//setters
 		void setFd(int fd);
 		void setHost(std::string host);
 		void setPort(std::string port);
@@ -64,13 +63,12 @@ class Client {
 		void setRegistered(bool registered);
 		void set_IsOperator(bool is_operator);
 
-		//methods
 		void welcomeMessage(std::string host, std::string port);
 		void sendMessage(std::string message, int fd);
 		void readMessage(int fd);
 		void joinChannel(Channel *channel);
 		void leaveChannel();
-
+		void appendToBuffer(const std::string &data);
 };
 
 #endif

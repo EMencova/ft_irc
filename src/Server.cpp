@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 07:39:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 08:42:38 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,20 +221,39 @@ void Server::thisClientDisconnect(int client_fd) {
 
 
 void Server::thisClientMessage(int client_fd, Client *sender) {
-	sender = _clients[client_fd];
 	std::string message = readMessage(client_fd, sender);
 	if (message.empty())
 		return;
-
+	sender = _clients[client_fd];
 	if (!sender->getRegistered()) {
-		if (message.find("PASS ") != 0) {
-			sender->sendMessage("Error: You must authenticate using the PASS command.\r\n", sender->getFd());
+		if (message.find("PASS ") == 0) {
+			std::string password = message.substr(5);
+			// Remove \r\n from password
+			if (!password.empty() && password.back() == '\n')
+				password.pop_back();
+			if (!password.empty() && password.back() == '\r')
+				password.pop_back();
+
+			if (password == _pswrd) {
+				sender->setRegistered(true);
+				std::string welcome_message = "Authentication successful. Welcome to the server!\r\n";
+				sender->sendMessage(welcome_message, client_fd);
+				return;
+			} else {
+				std::string error_message = "Error: Invalid password.\r\n";
+				sender->sendMessage(error_message, client_fd);
+				thisClientDisconnect(client_fd);
+				return;
+			}
+		} else {
+			std::string error_message = "Error: You must authenticate using the PASS command.\r\n";
+			sender->sendMessage(error_message, client_fd);
 			thisClientDisconnect(client_fd);
 			return;
 		}
-		return;
 	}
 
+	// Handle other commands only if client is registered
 	if (message.find("PRIVMSG ") == 0) {
 		privateMessageClient(sender, message);
 	} else if (message.find("JOIN ") == 0) {

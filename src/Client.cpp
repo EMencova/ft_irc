@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 07:44:07 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 08:24:17 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,4 +126,12 @@ void Client::joinChannel(Channel *channel) {
 
 void Client::leaveChannel() {
 	_channel = nullptr;
+}
+
+void Client::appendToBuffer(const std::string &data) {
+	_partialMessage += data;
+}
+
+std::string &Client::getBuffer() {
+	return _partialMessage;
 }
