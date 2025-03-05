@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 09:00:10 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 06:40:41 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,14 @@ class Channel {
 		std::string				_password;
 		std::vector<Client *>	_clients;
 		Client					*_admin;
+		std::vector<Client *> _invitedClients; // List of invited clients for +i mode
+
+		//chanop
+		bool _inviteOnly; // +i
+    	bool _topicRestricted; // +t
+    	std::string _channelKey; // +k
+    	std::vector<Client *> _operators; // List of channel operators
+		std::string _topic; // Channel topic
 
 	public:
 		Channel();
@@ -49,6 +57,28 @@ class Channel {
 
 		void addClient(Client *client);
 		void removeClient(Client *client);
+
+		//chanop
+		void setInviteOnly(bool inviteOnly);
+		bool isInviteOnly() const;
+
+		// Topic-related methods
+		void setTopic(const std::string &topic);
+		std::string getTopic() const;
+
+		void setTopicRestricted(bool topicRestricted);
+		bool isTopicRestricted() const;
+
+		void setChannelKey(const std::string &key);
+		std::string getChannelKey() const;
+
+		void addOperator(Client *client);
+		void removeOperator(Client *client);
+		bool isOperator(Client *client) const;
+
+		// Invite-related methods
+		void addInvitedClient(Client *client);
+		bool isClientInvited(Client *client) const;
 
 		void sendMessageToClients(std::string message, Client *client);
 };

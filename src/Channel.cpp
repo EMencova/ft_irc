@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 08:57:25 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 06:39:11 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,4 +95,62 @@ void Channel::setAdmin(Client *admin) {
 
 Client *Channel::getAdmin() {
 	return _admin;
+}
+
+// Mode-related methods
+void Channel::setInviteOnly(bool inviteOnly) {
+    _inviteOnly = inviteOnly;
+}
+
+bool Channel::isInviteOnly() const {
+    return _inviteOnly;
+}
+
+void Channel::setTopicRestricted(bool topicRestricted) {
+    _topicRestricted = topicRestricted;
+}
+
+bool Channel::isTopicRestricted() const {
+    return _topicRestricted;
+}
+
+void Channel::setTopic(const std::string &topic) {
+    _topic = topic;
+}
+
+std::string Channel::getTopic() const {
+    return _topic;
+}
+
+void Channel::setChannelKey(const std::string &key) {
+    _channelKey = key;
+}
+
+std::string Channel::getChannelKey() const {
+    return _channelKey;
+}
+
+void Channel::addOperator(Client *client) {
+    if (!isOperator(client)) {
+        _operators.push_back(client);
+    }
+}
+
+void Channel::removeOperator(Client *client) {
+    _operators.erase(std::remove(_operators.begin(), _operators.end(), client), _operators.end());
+}
+
+bool Channel::isOperator(Client *client) const {
+    return std::find(_operators.begin(), _operators.end(), client) != _operators.end();
+}
+
+// Invite-related methods
+void Channel::addInvitedClient(Client *client) {
+    if (!isClientInvited(client)) {
+        _invitedClients.push_back(client);
+    }
+}
+
+bool Channel::isClientInvited(Client *client) const {
+    return std::find(_invitedClients.begin(), _invitedClients.end(), client) != _invitedClients.end();
 }

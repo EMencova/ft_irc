@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 05:54:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 06:55:39 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,31 +219,37 @@ void Server::thisClientDisconnect(int client_fd) {
 }
 
 void Server::thisClientMessage(int client_fd, Client *sender) {
+    sender = _clients[client_fd];
+    std::string message = readMessage(client_fd, sender);
 
-	sender = _clients[client_fd];
-	std::string message = readMessage(client_fd, sender);
+    if (message.empty()) {
+        return;
+    }
 
-	if (message.empty()) {
-		return;
-	}
-	std::string sender_nickname = sender->getNickname();
-
-	if (message.find("PRIVMSG ") == 0) {
-		privateMessageClient(sender, message);
-	} else if (message.find("JOIN ") == 0) {
-		joinChannel(sender, message);
-	} else if (message.find("NICK ") == 0) {
-		setNickname(sender, message);
-	} else if (message.find("USER ") == 0) {
-		setUsername(sender, message);
-	} else if (message.find("OPER ") == 0) {
-		makeOperator(sender, message);
-	} else {
-		if (sender->getChannel()) {
-			std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
-			sender->getChannel()->sendMessageToClients(formatted_message, sender);
-		}
-	}
+    if (message.find("PRIVMSG ") == 0) {
+        privateMessageClient(sender, message);
+    } else if (message.find("JOIN ") == 0) {
+        joinChannel(sender, message);
+    } else if (message.find("NICK ") == 0) {
+        setNickname(sender, message);
+    } else if (message.find("USER ") == 0) {
+        setUsername(sender, message);
+    } else if (message.find("OPER ") == 0) {
+        makeOperator(sender, message);
+    } else if (message.find("KICK ") == 0) {
+        kickClient(sender, message);
+    } else if (message.find("INVITE ") == 0) {
+        inviteClient(sender, message);
+    } else if (message.find("TOPIC ") == 0) {
+        setTopic(sender, message);
+    } else if (message.find("MODE ") == 0) {
+        setChannelMode(sender, message);
+    } else {
+        if (sender->getChannel()) {
+            std::string formatted_message = "[" + sender->getNickname() + "]: " + message + "\r\n";
+            sender->getChannel()->sendMessageToClients(formatted_message, sender);
+        }
+    }
 }
 
 void Server::authenticateClient(Client *client) {
@@ -305,11 +311,18 @@ Channel *Server::createNewChannel(std::string &channel_name, std::string &channe
 	return new_channel;
 }
 
-Channel *Server::getChannelByName(std::string &channel_name){
-	for (channels_iterator ch_it = _channels.begin(); ch_it != _channels.end(); ch_it++)
-		if ((*ch_it)->getName() == channel_name)
-			return *ch_it;
-	return nullptr;
+Channel *Server::getChannelByName(std::string &channelName) {
+    // Remove leading '#' if present
+    if (!channelName.empty() && channelName[0] == '#') {
+        channelName.erase(0, 1);
+    }
+
+    for (channels_iterator ch_it = _channels.begin(); ch_it != _channels.end(); ch_it++) {
+        if ((*ch_it)->getName() == channelName) {
+            return *ch_it;
+        }
+    }
+    return nullptr;
 }
 
 void Server::addClientToChannel(Client *client, Channel *channel) {
@@ -345,21 +358,37 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 }
 
 void Server::joinChannel(Client *sender, std::string message) {
-	std::string channel_name = message.substr(6);
-	Channel *channel = getChannelByName(channel_name);
-	if (channel) {
-		addClientToChannel(sender, channel);
-		std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
-		sender->sendMessage(join_message, sender->getFd());
-	} else {
-		// Create a new channel if it doesn't exist
-		std::string channel_password = ""; // modify this to handle passwords
-		channel = createNewChannel(channel_name, channel_password, sender);
-		std::string create_message = "Channel created: " + channel_name + "\r\n";
-		sender->sendMessage(create_message, sender->getFd());
-		std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
-		sender->sendMessage(join_message, sender->getFd());
-	}
+    // Format: JOIN <channel>
+    std::istringstream iss(message);
+    std::string cmd, channelName;
+    iss >> cmd >> channelName;
+
+    // Remove leading '#' if present
+    if (!channelName.empty() && channelName[0] == '#') {
+        channelName.erase(0, 1);
+    }
+
+    // Check if the channel name is valid
+    if (channelName.empty()) {
+        sender->sendMessage("Error: Invalid channel name.\r\n", sender->getFd());
+        return;
+    }
+
+    Channel *channel = getChannelByName(channelName);
+    if (channel) {
+        // Channel exists, add the client to the channel
+        addClientToChannel(sender, channel);
+        std::string joinMessage = "You have joined the channel: #" + channelName + "\r\n";
+        sender->sendMessage(joinMessage, sender->getFd());
+    } else {
+        // Channel does not exist, create a new channel
+        std::string channelPassword = ""; // Modify this to handle passwords if needed
+        channel = createNewChannel(channelName, channelPassword, sender);
+        std::string createMessage = "Channel created: #" + channelName + "\r\n";
+        sender->sendMessage(createMessage, sender->getFd());
+        std::string joinMessage = "You have joined the channel: #" + channelName + "\r\n";
+        sender->sendMessage(joinMessage, sender->getFd());
+    }
 }
 
 void Server::setNickname(Client *client, std::string message) {
@@ -463,4 +492,205 @@ void Server::makeOperator(Client *client, std::string message) {
 		std::string error_message = "Error: Invalid OPER command. Usage: OPER <username> <password>\r\n";
 		client->sendMessage(error_message, client->getFd());
 	}
+}
+
+
+void Server::kickClient(Client *sender, const std::string &message) {
+    // Format: KICK <channel> <client> [reason]
+    std::istringstream iss(message);
+    std::string cmd, channelName, targetNickname, reason;
+    iss >> cmd >> channelName >> targetNickname;
+    std::getline(iss, reason); // Optional reason
+
+    Channel *channel = getChannelByName(channelName);
+    if (!channel) {
+        sender->sendMessage("Error: Channel not found.\r\n", sender->getFd());
+        return;
+    }
+
+    if (!channel->isOperator(sender)) {
+        sender->sendMessage("Error: You are not a channel operator.\r\n", sender->getFd());
+        return;
+    }
+
+    Client *target = nullptr;
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == targetNickname) {
+            target = it->second;
+            break;
+        }
+    }
+
+    if (!target || target->getChannel() != channel) {
+        sender->sendMessage("Error: Client not found in the channel.\r\n", sender->getFd());
+        return;
+    }
+
+    channel->removeClient(target);
+    std::string kickMessage = "You have been kicked from " + channelName + " by " + sender->getNickname() + ". Reason: " + reason + "\r\n";
+    target->sendMessage(kickMessage, target->getFd());
+}
+
+void Server::inviteClient(Client *sender, const std::string &message) {
+    // Format: INVITE <nickname> <channel>
+    std::istringstream iss(message);
+    std::string cmd, targetNickname, channelName;
+    iss >> cmd >> targetNickname >> channelName;
+
+    Channel *channel = getChannelByName(channelName);
+    if (!channel) {
+        sender->sendMessage("Error: Channel not found.\r\n", sender->getFd());
+        return;
+    }
+
+    if (!channel->isOperator(sender)) {
+        sender->sendMessage("Error: You are not a channel operator.\r\n", sender->getFd());
+        return;
+    }
+
+    Client *target = nullptr;
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == targetNickname) {
+            target = it->second;
+            break;
+        }
+    }
+
+    if (!target) {
+        sender->sendMessage("Error: Client not found.\r\n", sender->getFd());
+        return;
+    }
+
+    channel->addInvitedClient(target);
+    std::string inviteMessage = "You have been invited to " + channelName + " by " + sender->getNickname() + ".\r\n";
+    target->sendMessage(inviteMessage, target->getFd());
+}
+
+void Server::setTopic(Client *sender, const std::string &message) {
+    // Format: TOPIC <channel> [topic]
+    std::istringstream iss(message);
+    std::string cmd, channelName, topic;
+    iss >> cmd >> channelName;
+    std::getline(iss, topic); // Optional topic
+
+    // Remove leading '#' if present
+    if (!channelName.empty() && channelName[0] == '#') {
+        channelName.erase(0, 1);
+    }
+
+    // Check if the channel name is valid
+    if (channelName.empty()) {
+        sender->sendMessage("Error: Invalid channel name.\r\n", sender->getFd());
+        return;
+    }
+
+    Channel *channel = getChannelByName(channelName);
+    if (!channel) {
+        sender->sendMessage("Error: Channel not found.\r\n", sender->getFd());
+        return;
+    }
+
+    // Check if the sender is a member of the channel
+    bool isMember = false;
+    for (std::vector<Client *>::iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it) {
+        if (*it == sender) {
+            isMember = true;
+            break;
+        }
+    }
+
+    if (!isMember) {
+        sender->sendMessage("Error: You are not a member of this channel.\r\n", sender->getFd());
+        return;
+    }
+
+    // Check if the topic is restricted and the sender is not an operator
+    if (channel->isTopicRestricted() && !channel->isOperator(sender)) {
+        sender->sendMessage("Error: You do not have permission to change the topic.\r\n", sender->getFd());
+        return;
+    }
+
+    // Remove leading/trailing whitespace from the topic
+    topic.erase(0, topic.find_first_not_of(' '));
+    topic.erase(topic.find_last_not_of(' ') + 1);
+
+    if (!topic.empty()) {
+        // Set the new topic
+        channel->setTopic(topic);
+        std::string successMessage = "Topic for #" + channelName + " set to: " + topic + "\r\n";
+        channel->sendMessageToClients(successMessage, sender);
+    } else {
+        // View the current topic
+        std::string currentTopic = channel->getTopic();
+        std::string topicMessage = "Topic for #" + channelName + ": " + currentTopic + "\r\n";
+        sender->sendMessage(topicMessage, sender->getFd());
+    }
+}
+
+void Server::setChannelMode(Client *sender, const std::string &message) {
+    // Format: MODE <channel> <mode> [args]
+    std::istringstream iss(message);
+    std::string cmd, channelName, mode, args;
+    iss >> cmd >> channelName >> mode >> args;
+
+    Channel *channel = getChannelByName(channelName);
+    if (!channel) {
+        sender->sendMessage("Error: Channel not found.\r\n", sender->getFd());
+        return;
+    }
+
+    if (!channel->isOperator(sender)) {
+        sender->sendMessage("Error: You are not a channel operator.\r\n", sender->getFd());
+        return;
+    }
+
+    if (mode == "+i") {
+        channel->setInviteOnly(true);
+        sender->sendMessage("Channel is now invite-only.\r\n", sender->getFd());
+    } else if (mode == "-i") {
+        channel->setInviteOnly(false);
+        sender->sendMessage("Channel is no longer invite-only.\r\n", sender->getFd());
+    } else if (mode == "+t") {
+        channel->setTopicRestricted(true);
+        sender->sendMessage("Only operators can now change the topic.\r\n", sender->getFd());
+    } else if (mode == "-t") {
+        channel->setTopicRestricted(false);
+        sender->sendMessage("All users can now change the topic.\r\n", sender->getFd());
+    } else if (mode == "+k") {
+        channel->setChannelKey(args);
+        sender->sendMessage("Channel key set to: " + args + "\r\n", sender->getFd());
+    } else if (mode == "-k") {
+        channel->setChannelKey("");
+        sender->sendMessage("Channel key removed.\r\n", sender->getFd());
+    } else if (mode == "+o") {
+        Client *target = nullptr;
+        for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+            if (it->second->getNickname() == args) {
+                target = it->second;
+                break;
+            }
+        }
+        if (target) {
+            channel->addOperator(target);
+            sender->sendMessage("Operator privileges granted to " + args + ".\r\n", sender->getFd());
+        } else {
+            sender->sendMessage("Error: Client not found.\r\n", sender->getFd());
+        }
+    } else if (mode == "-o") {
+        Client *target = nullptr;
+        for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+            if (it->second->getNickname() == args) {
+                target = it->second;
+                break;
+            }
+        }
+        if (target) {
+            channel->removeOperator(target);
+            sender->sendMessage("Operator privileges removed from " + args + ".\r\n", sender->getFd());
+        } else {
+            sender->sendMessage("Error: Client not found.\r\n", sender->getFd());
+        }
+    } else {
+        sender->sendMessage("Error: Invalid mode.\r\n", sender->getFd());
+    }
 }
