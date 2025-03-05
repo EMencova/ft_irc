@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 07:43:38 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 11:21:22 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <set>
 #include "Client.hpp"
 #include <algorithm>
+#include <sys/poll.h>
+#include <sys/socket.h>
 
 class Client;
 

@@ -6,17 +6,12 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 07:43:53 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 11:21:06 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
-#include <iostream>
-#include <vector>
-#include <string>
-#include <set>
-#include <sys/poll.h>
-#include <sys/socket.h>
+#include "../inc/response.hpp"
 
 Channel::Channel() {
 }
@@ -55,7 +50,7 @@ Channel &Channel::operator=(const Channel &original) {
 void Channel::addClient(Client *client) {
 	_clients.push_back(client);
 	client->setChannel(this);
-	std::cout << "Client " << client->getNickname() << " joined channel " << _name << std::endl;
+	irc_log("Client " + client->getNickname() + " joined channel " + _name);
 }
 
 void Channel::removeClient(Client *client) {
@@ -63,7 +58,7 @@ void Channel::removeClient(Client *client) {
 	if (it != _clients.end()) {
 		_clients.erase(it);
 		client->setChannel(nullptr);
-		std::cout << "Client " << client->getNickname() << " left channel " << _name << std::endl;
+		irc_log("Client " + client->getNickname() + " left channel " + _name);
 	}
 }
 
@@ -107,7 +102,7 @@ Client *Channel::getAdmin() {
 	return _admin;
 }
 
-//channel modes
+// Channel modes
 
 void Channel::addMode(char mode) {
 	_modes.insert(mode);

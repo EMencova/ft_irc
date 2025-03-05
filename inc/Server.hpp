@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 07:41:36 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 11:22:31 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 #include <map>
 #include <netdb.h>
 #include <algorithm>
+#include <stdexcept>
+#include <cstring>
 
 #include "Client.hpp"
 #include "Channel.hpp"

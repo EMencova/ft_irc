@@ -6,14 +6,14 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 08:24:17 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 11:19:51 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
+#include "../inc/response.hpp"
 
-Client::Client() {
-}
+Client::Client() { }
 
 Client::Client(int fd, std::string port, std::string host) {
 	_fd = fd;
@@ -23,14 +23,13 @@ Client::Client(int fd, std::string port, std::string host) {
 	_is_operator = false;
 }
 
-Client::~Client() {
-}
+Client::~Client() { }
 
 int Client::getFd() {
 	return _fd;
 }
 
-//getters
+// Getters
 
 std::string Client::getHost() {
 	return _host;
@@ -56,11 +55,12 @@ bool Client::getRegistered() {
 	return _registered;
 }
 
-bool Client::get_IsOperator(){
+bool Client::get_IsOperator() {
 	return _is_operator;
 }
 
-//setters
+// Setters
+
 void Client::setFd(int fd) {
 	_fd = fd;
 }
@@ -89,7 +89,7 @@ void Client::setRegistered(bool registered) {
 	_registered = registered;
 }
 
-void Client::set_IsOperator(bool is_operator){
+void Client::set_IsOperator(bool is_operator) {
 	_is_operator = is_operator;
 }
 
@@ -101,7 +101,6 @@ void Client::welcomeMessage(std::string host, std::string port) {
 void Client::sendMessage(std::string message, int fd) {
 	send(fd, message.c_str(), message.size(), 0);
 }
-
 
 void Client::readMessage(int fd) {
 	char tempBuffer[1024];
@@ -115,7 +114,7 @@ void Client::readMessage(int fd) {
 	size_t pos;
 	while ((pos = _partialMessage.find("\r\n")) != std::string::npos) {
 		std::string completeMsg = _partialMessage.substr(0, pos);
-		std::cout << "Received: " << completeMsg << std::endl;
+		irc_log("Received: " + completeMsg);
 		_partialMessage.erase(0, pos + 2);
 	}
 }
