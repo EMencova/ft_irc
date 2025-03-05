@@ -6,7 +6,7 @@
 #    By: mac <mac@student.42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/05 12:02:25 by mac               #+#    #+#              #
-#    Updated: 2025/03/05 12:37:33 by mac              ###   ########.fr        #
+#    Updated: 2025/03/05 12:56:21 by mac              ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,19 +16,19 @@ CC = c++
 CFLAGS = -Wall -Werror -Wextra -std=c++98
 
 SRC = main.cpp \
-      src/Server.cpp \
-      src/Client.cpp \
-      src/Channel.cpp \
-      src/commands/Mode.cpp \
-      src/commands/Auth.cpp \
-      src/commands/Invite.cpp \
-      src/commands/Join.cpp \
-      src/commands/Kick.cpp \
-      src/commands/Nick.cpp \
-      src/commands/Operator.cpp \
-      src/commands/Privmsg.cpp \
-      src/commands/Topic.cpp \
-      src/commands/User.cpp
+		src/Server.cpp \
+		src/Client.cpp \
+		src/Channel.cpp \
+		src/commands/Mode.cpp \
+		src/commands/Auth.cpp \
+		src/commands/Invite.cpp \
+		src/commands/Join.cpp \
+		src/commands/Kick.cpp \
+		src/commands/Nick.cpp \
+		src/commands/Operator.cpp \
+		src/commands/Privmsg.cpp \
+		src/commands/Topic.cpp \
+		src/commands/User.cpp
 
 OBJDIR = obj
 OBJ = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRC))
