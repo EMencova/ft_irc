@@ -6,12 +6,11 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/04 22:55:19 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 07:44:07 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
-
 
 Client::Client() {
 }
@@ -128,5 +127,3 @@ void Client::joinChannel(Channel *channel) {
 void Client::leaveChannel() {
 	_channel = nullptr;
 }
-
-

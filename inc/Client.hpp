@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/04 22:55:55 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 07:42:02 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,6 @@ class Client {
 		void set_IsOperator(bool is_operator);
 
 		//methods
-		//write a message, reply a mesaage to an fd, welcome message, join, leave, list, nick, user, who, whois, quit
-
 		void welcomeMessage(std::string host, std::string port);
 		void sendMessage(std::string message, int fd);
 		void readMessage(int fd);

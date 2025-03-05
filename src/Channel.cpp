@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 08:57:25 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 07:43:53 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 #include <sys/poll.h>
 #include <sys/socket.h>
-
 
 Channel::Channel() {
 }
@@ -26,11 +26,13 @@ Channel::Channel(std::string &name, std::string &password, Client *client) {
 	_password = password;
 	_clients.push_back(client);
 	_admin = client;
+	_operators.push_back(client);
+	if (!password.empty())
+		_modes.insert('k');
 }
 
 Channel::~Channel() {
 }
-
 
 Channel::Channel(const Channel &original) {
 	*this = original;
@@ -38,10 +40,15 @@ Channel::Channel(const Channel &original) {
 
 Channel &Channel::operator=(const Channel &original) {
 	if (this == &original)
-	return *this;
+		return *this;
 	_name = original._name;
 	_password = original._password;
 	_clients = original._clients;
+	_admin = original._admin;
+	_modes = original._modes;
+	_topic = original._topic;
+	_operators = original._operators;
+	_invitedClients = original._invitedClients;
 	return *this;
 }
 
@@ -78,9 +85,12 @@ void Channel::setName(std::string name) {
 
 void Channel::setPassword(std::string password) {
 	_password = password;
+	if (!password.empty())
+		_modes.insert('k');
+	else
+		_modes.erase('k');
 }
 
-//confirm
 void Channel::sendMessageToClients(const std::string message, Client *sender) {
 	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if (*it != sender) {
@@ -95,4 +105,73 @@ void Channel::setAdmin(Client *admin) {
 
 Client *Channel::getAdmin() {
 	return _admin;
+}
+
+//channel modes
+
+void Channel::addMode(char mode) {
+	_modes.insert(mode);
+}
+
+void Channel::removeMode(char mode) {
+	_modes.erase(mode);
+}
+
+bool Channel::hasMode(char mode) const {
+	return _modes.find(mode) != _modes.end();
+}
+
+std::string Channel::getModes() const {
+	std::string modes;
+	for (std::set<char>::iterator it = _modes.begin(); it != _modes.end(); ++it)
+		modes.push_back(*it);
+	return modes;
+}
+
+void Channel::setTopic(const std::string &topic) {
+	_topic = topic;
+}
+
+std::string Channel::getTopic() const {
+	return _topic;
+}
+
+void Channel::addOperator(Client *client) {
+	if (!isOperator(client))
+		_operators.push_back(client);
+}
+
+void Channel::removeOperator(Client *client) {
+	std::vector<Client*>::iterator it = std::find(_operators.begin(), _operators.end(), client);
+	if (it != _operators.end())
+		_operators.erase(it);
+}
+
+bool Channel::isOperator(Client *client) const {
+	if (client == _admin)
+		return true;
+	for (std::vector<Client*>::const_iterator it = _operators.begin(); it != _operators.end(); ++it) {
+		if (*it == client)
+			return true;
+	}
+	return false;
+}
+
+void Channel::addInvited(Client *client) {
+	if (!isInvited(client))
+		_invitedClients.push_back(client);
+}
+
+bool Channel::isInvited(Client *client) const {
+	for (std::vector<Client*>::const_iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
+		if (*it == client)
+			return true;
+	}
+	return false;
+}
+
+void Channel::removeInvited(Client *client) {
+	std::vector<Client*>::iterator it = std::find(_invitedClients.begin(), _invitedClients.end(), client);
+	if (it != _invitedClients.end())
+		_invitedClients.erase(it);
 }

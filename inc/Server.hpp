@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/04 22:49:34 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 07:41:36 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@
 
 #define MAXCLIENT 1000
 
-
 class Server
 {
 	private:
@@ -51,14 +50,11 @@ class Server
 		std::vector<pollfd>			_pollfds;
 		std::map<int, Client *>		_clients;
 		std::vector<Channel *>		_channels;
-		// CommandHandler*				_commandHandler;
+		// CommandHandler*			_commandHandler;
 
 	public:
 		Server();
 		Server(const std::string &port, const std::string &pswrd);
-		// Server(int port_input, const std::string &pswrd);
-		// Server(const Server &original);
-		// Server &operator=(const Server &original);
 		~Server();
 
 		int createNewSocket();
@@ -79,5 +75,10 @@ class Server
 		void setNickname(Client *client, std::string message);
 		void setUsername(Client *client, std::string message);
 		void makeOperator(Client *client, std::string message);
-};
 
+		// chanops
+		void handleKick(Client *sender, std::string message);
+		void handleInvite(Client *sender, std::string message);
+		void handleTopic(Client *sender, std::string message);
+		void handleMode(Client *sender, std::string message);
+};

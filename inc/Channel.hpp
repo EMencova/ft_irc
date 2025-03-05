@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 09:00:10 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 07:43:38 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 #include "Client.hpp"
-#include <vector>
 #include <algorithm>
 
 class Client;
@@ -29,6 +29,10 @@ class Channel {
 		std::string				_password;
 		std::vector<Client *>	_clients;
 		Client					*_admin;
+		std::set<char>			_modes;
+		std::string				_topic;
+		std::vector<Client *>	_operators;
+		std::vector<Client *>	_invitedClients;
 
 	public:
 		Channel();
@@ -40,7 +44,7 @@ class Channel {
 
 		Client *getAdmin();
 		std::string getName();
-		std::string	getpassword();
+		std::string getpassword();
 		std::vector<Client *> getClients();
 
 		void setName(std::string name);
@@ -51,5 +55,23 @@ class Channel {
 		void removeClient(Client *client);
 
 		void sendMessageToClients(std::string message, Client *client);
+
+		//channel modes and commands
+		void addMode(char mode);
+		void removeMode(char mode);
+		bool hasMode(char mode) const;
+		std::string getModes() const;
+
+		void setTopic(const std::string &topic);
+		std::string getTopic() const;
+
+		void addOperator(Client *client);
+		void removeOperator(Client *client);
+		bool isOperator(Client *client) const;
+
+		void addInvited(Client *client);
+		bool isInvited(Client *client) const;
+		void removeInvited(Client *client);
 };
+
 #endif
