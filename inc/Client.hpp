@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/03 07:42:12 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/04 22:55:55 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Client {
 		std::string					_nickname;
 		Channel						*_channel;
 		bool						_registered;
+		bool						_is_operator;
 		std::string					_partialMessage; //CGM
 
 	public:
@@ -51,6 +52,7 @@ class Client {
 		std::string getNickname();
 		Channel *getChannel();
 		bool getRegistered();
+		bool get_IsOperator();
 
 		//setters
 		void setFd(int fd);
@@ -60,6 +62,7 @@ class Client {
 		void setNickname(std::string nickname);
 		void setChannel(Channel *channel);
 		void setRegistered(bool registered);
+		void set_IsOperator(bool is_operator);
 
 		//methods
 		//write a message, reply a mesaage to an fd, welcome message, join, leave, list, nick, user, who, whois, quit
@@ -69,6 +72,7 @@ class Client {
 		void readMessage(int fd);
 		void joinChannel(Channel *channel);
 		void leaveChannel();
+
 };
 
 #endif

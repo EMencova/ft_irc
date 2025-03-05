@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/04 15:03:12 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/05 05:54:28 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void Server::startServer() {
 					thisClientConnect();
 				} else {
 					// Client message
-					thisClientMessage(_pollfds[i].fd);
+					thisClientMessage(_pollfds[i].fd, _clients[_pollfds[i].fd]);
 				}
 			}
 
@@ -98,7 +98,8 @@ void Server::startServer() {
 	}
 }
 
-std::string Server::readMessage(int client_fd) {
+
+std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
 	char buffer[1024];
 	ssize_t bytes_read;
@@ -109,11 +110,16 @@ std::string Server::readMessage(int client_fd) {
 		if (bytes_read > 0) {
 			buffer[bytes_read] = '\0';
 			message.append(buffer);
+
 			if (message.find("\r\n") != std::string::npos) {
 				break;
 			}
 		} else if (bytes_read == 0) {
-			std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
+			if (!client->getNickname().empty()) {
+				std::cout << "Client " << client->getNickname() << " disconnected." << std::endl;
+			} else {
+				std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
+			}
 			thisClientDisconnect(client_fd);
 			return "";
 		} else {
@@ -126,11 +132,13 @@ std::string Server::readMessage(int client_fd) {
 			}
 		}
 	}
-
 	if (!message.empty()) {
-		std::cout << "Message from FD " << client_fd << ": " << message << "\r\n";
+		if (!client->getNickname().empty()) {
+			std::cout << "Message from " << client->getNickname() << ": " << message << "\r\n";
+		} else {
+			std::cout << "Message from FD " << client_fd << ": " << message << "\r\n";
+		}
 	}
-
 	return message;
 }
 
@@ -210,21 +218,26 @@ void Server::thisClientDisconnect(int client_fd) {
 	std::cout << "Client FD " << client_fd << " disconnected." << std::endl;
 }
 
-void Server::thisClientMessage(int client_fd) {
-	std::string message = readMessage(client_fd);
+void Server::thisClientMessage(int client_fd, Client *sender) {
+
+	sender = _clients[client_fd];
+	std::string message = readMessage(client_fd, sender);
 
 	if (message.empty()) {
 		return;
 	}
-
-	Client *sender = _clients[client_fd];
-
 	std::string sender_nickname = sender->getNickname();
 
 	if (message.find("PRIVMSG ") == 0) {
 		privateMessageClient(sender, message);
 	} else if (message.find("JOIN ") == 0) {
 		joinChannel(sender, message);
+	} else if (message.find("NICK ") == 0) {
+		setNickname(sender, message);
+	} else if (message.find("USER ") == 0) {
+		setUsername(sender, message);
+	} else if (message.find("OPER ") == 0) {
+		makeOperator(sender, message);
 	} else {
 		if (sender->getChannel()) {
 			std::string formatted_message = "[" + sender_nickname + "]: " + message + "\r\n";
@@ -243,7 +256,7 @@ void Server::authenticateClient(Client *client) {
 	// Wait for the client to send the PASS command
 	std::string message;
 	while (true) {
-		message = readMessage(client_fd);
+		message = readMessage(client_fd, client);
 
 		if (!message.empty()) {
 			if (message.find("PASS ") == 0) {
@@ -279,7 +292,6 @@ void Server::authenticateClient(Client *client) {
 				return;
 			}
 		}
-
 		// (optional)
 		usleep(100000);
 	}
@@ -347,5 +359,108 @@ void Server::joinChannel(Client *sender, std::string message) {
 		sender->sendMessage(create_message, sender->getFd());
 		std::string join_message = "You have joined the channel: " + channel_name + "\r\n";
 		sender->sendMessage(join_message, sender->getFd());
+	}
+}
+
+void Server::setNickname(Client *client, std::string message) {
+	std::string new_nickname = message.substr(5);
+	if (!new_nickname.empty() && new_nickname.back() == '\n') {
+		new_nickname.pop_back();
+	}
+	if (!new_nickname.empty() && new_nickname.back() == '\r') {
+		new_nickname.pop_back();
+	}
+	bool nickname_exists = false;
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->second->getNickname() == new_nickname) {
+			nickname_exists = true;
+			break;
+		}
+	}
+	if (nickname_exists) {
+		std::string error_message = "Error: Nickname '" + new_nickname + "' already exists. Please choose a different nickname.\r\n";
+		client->sendMessage(error_message, client->getFd());
+	} else {
+		client->setNickname(new_nickname);
+		std::string success_message = "Nickname changed to: " + client->getNickname() + "\r\n";
+		client->sendMessage(success_message, client->getFd());
+	}
+}
+
+void Server::setUsername(Client *client, std::string message) {
+	std::string new_username = message.substr(5);
+	if (!new_username.empty() && new_username.back() == '\n') {
+		new_username.pop_back();
+	}
+	if (!new_username.empty() && new_username.back() == '\r') {
+		new_username.pop_back();
+	}
+	bool username_exists = false;
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->second->getUsername() == new_username) {
+			username_exists = true;
+			break;
+		}
+	}
+	if (username_exists) {
+		std::string error_message = "Error: Username '" + new_username + "' already exists. Please choose a different username.\r\n";
+		client->sendMessage(error_message, client->getFd());
+	} else {
+		client->setUsername(new_username);
+		std::string success_message = "Username set to: " + client->getUsername() + "\r\n";
+		client->sendMessage(success_message, client->getFd());
+	}
+}
+
+void Server::makeOperator(Client *client, std::string message) {
+	// Debug: Print the raw OPER command
+	std::cout << "Debug: Raw OPER command: '" << message << "'" << std::endl;
+
+	// Remove trailing newline and carriage return characters
+	if (!message.empty() && message.back() == '\n') {
+		message.pop_back();
+	}
+	if (!message.empty() && message.back() == '\r') {
+		message.pop_back();
+	}
+
+	// Debug: Print the cleaned OPER command
+	std::cout << "Debug: Cleaned OPER command: '" << message << "'" << std::endl;
+
+	// Find the positions of the spaces
+	size_t first_space = message.find(' '); // Space after "OPER"
+	size_t second_space = message.find(' ', first_space + 1); // Space between username and password
+
+	// Debug: Print the positions of the spaces
+	std::cout << "Debug: first_space: " << first_space << ", second_space: " << second_space << std::endl;
+
+	if (first_space != std::string::npos && second_space != std::string::npos) {
+		// Extract the username and password
+		std::string username = message.substr(first_space + 1, second_space - (first_space + 1));
+		std::string password = message.substr(second_space + 1);
+
+		// Debug: Print the extracted username and password
+		std::cout << "Debug: Username: '" << username << "', Password: '" << password << "'" << std::endl;
+
+		// Check if the password matches the server's operator password
+		if (password == _pswrd) {
+			// Set the client as an operator
+			client->set_IsOperator(true);
+
+			// Debug: Verify that the operator status is set
+			std::cout << "Debug: Client " << client->getNickname() << " is now an operator." << std::endl;
+
+			// Send a success message to the client
+			std::string success_message = "You are now an operator.\r\n";
+			client->sendMessage(success_message, client->getFd());
+		} else {
+			// Send an error message to the client
+			std::string error_message = "Error: Invalid operator password.\r\n";
+			client->sendMessage(error_message, client->getFd());
+		}
+	} else {
+		// Handle invalid OPER command format
+		std::string error_message = "Error: Invalid OPER command. Usage: OPER <username> <password>\r\n";
+		client->sendMessage(error_message, client->getFd());
 	}
 }

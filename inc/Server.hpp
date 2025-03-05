@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/04 15:01:47 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/04 22:49:34 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,16 +65,19 @@ class Server
 		void startServer();
 		void thisClientConnect();
 		void thisClientDisconnect(int client_fd);
-		void thisClientMessage(int client_fd);
+		void thisClientMessage(int client_fd, Client *sender);
 
 		void addClientToChannel(Client *client, Channel *channel);
 		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
 		Channel *getChannelByName(std::string &channel_name);
 		Client *getClientByFd(int client_fd);
-		std::string readMessage(int client_fd);
+		std::string readMessage(int client_fd, Client *client);
 		void authenticateClient(Client *client);
 
 		void privateMessageClient(Client *sender, std::string message);
 		void joinChannel(Client *client, std::string message);
+		void setNickname(Client *client, std::string message);
+		void setUsername(Client *client, std::string message);
+		void makeOperator(Client *client, std::string message);
 };
 
