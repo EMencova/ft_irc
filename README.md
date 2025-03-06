@@ -554,7 +554,6 @@ For quick testing, you can use `nc` (Netcat) or `telnet` to connect to your serv
 - For **interactive testing**, use `irssi` or `weechat` (terminal-based) or `HexChat` (graphical).
 - For **web-based testing**, use `Kiwi IRC`.
 
-Let me know if you need further assistance!
 
 
 
