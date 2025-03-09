@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:47:35 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/09 10:02:42 by ashobajo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void Server::handleMode(Client *sender, std::string message) {
 					sender->sendMessage("Error: Mode +o requires a nickname parameter.\r\n", sender->getFd());
 				} else {
 					std::vector<Client *> clients = channel->getClients();
-					Client *target = nullptr;
+					Client *target = NULL;
 					for (size_t j = 0; j < clients.size(); j++) {
 						if (clients[j]->getNickname() == target_nickname) {
 							target = clients[j];
@@ -104,7 +104,7 @@ void Server::handleMode(Client *sender, std::string message) {
 					sender->sendMessage("Error: Mode -o requires a nickname parameter.\r\n", sender->getFd());
 				} else {
 					std::vector<Client *> clients = channel->getClients();
-					Client *target = nullptr;
+					Client *target = NULL;
 					for (size_t j = 0; j < clients.size(); j++) {
 						if (clients[j]->getNickname() == target_nickname) {
 							target = clients[j];

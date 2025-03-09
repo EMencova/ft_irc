@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:47:29 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/09 10:04:33 by ashobajo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void Server::handleKick(Client *sender, std::string message) {
 		return;
 	}
 	std::vector<Client *> clients = channel->getClients();
-	Client *target = nullptr;
+	Client *target = NULL;
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i]->getNickname() == target_nickname) {
 			target = clients[i];

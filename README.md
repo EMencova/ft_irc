@@ -352,8 +352,8 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345  localhost 9997*
-**CONNECT localhost 9997 12345 mac_canalik*
+**server add -auto -tls_pass 12345  localhost 9999*
+**CONNECT localhost 9999 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*

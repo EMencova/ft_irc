@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:47:15 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/09 10:04:13 by ashobajo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void Server::handleInvite(Client *sender, std::string message) {
 		sender->sendMessage(ERR_CHANOPRIVSNEEDED("server", channel_name) + "\r\n", sender->getFd());
 		return;
 	}
-	Client *target = nullptr;
+	Client *target = NULL;
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->second->getNickname() == target_nickname) {
 			target = it->second;

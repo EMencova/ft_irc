@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:19:51 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/09 10:22:04 by ashobajo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,9 @@
 
 Client::Client() { }
 
-Client::Client(int fd, std::string port, std::string host) {
-	_fd = fd;
-	_port = port;
-	_host = host;
-	_registered = false;
-	_is_operator = false;
-}
+Client::Client(int fd, std::string port, std::string host) 
+: _fd(fd), _host(host), _port(port), _channel(NULL), _registered(false), _is_operator(false)
+{ }
 
 Client::~Client() { }
 
@@ -124,7 +120,7 @@ void Client::joinChannel(Channel *channel) {
 }
 
 void Client::leaveChannel() {
-	_channel = nullptr;
+	_channel = NULL;
 }
 
 void Client::appendToBuffer(const std::string &data) {

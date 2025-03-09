@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 11:22:31 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/09 09:50:38 by ashobajo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstring>
+#include <cstdlib>
+#include <sstream> 
+#include <cerrno>
 
 #include "Client.hpp"
 #include "Channel.hpp"
