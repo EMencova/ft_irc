@@ -6,12 +6,15 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/10 11:07:51 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 15:40:11 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include "../inc/response.hpp"
+#include <sstream>
+#include <cstring>
+#include <cerrno>
 
 Server::Server() { }
 
@@ -106,11 +109,9 @@ std::string Server::readMessage(int client_fd, Client *client) {
 
 	while (true) {
 		bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-
 		if (bytes_read > 0) {
 			buffer[bytes_read] = '\0';
 			message.append(buffer);
-
 			if (message.find("\r\n") != std::string::npos) {
 				break;
 			}
@@ -138,25 +139,30 @@ std::string Server::readMessage(int client_fd, Client *client) {
 			}
 		}
 	}
+
+	// Trim leading and trailing whitespace (including CR and LF)
+	size_t first = message.find_first_not_of(" \t\r\n");
+	if (first != std::string::npos)
+		message = message.substr(first);
+	else
+		message = "";
+
+	size_t last = message.find_last_not_of(" \t\r\n");
+	if (last != std::string::npos)
+		message = message.substr(0, last + 1);
+
+	// Log the message only if non-empty after trimming.
 	if (!message.empty()) {
+		std::ostringstream oss;
 		if (!client->getNickname().empty()) {
-			std::ostringstream oss;
 			oss << "Message from " << client->getNickname() << ": " << message;
-			irc_log(oss.str());
 		} else {
-			std::ostringstream oss;
 			oss << "Message from FD " << client_fd << ": " << message;
-			irc_log(oss.str());
 		}
+		irc_log(oss.str());
 	}
 	return message;
 }
-
-#include "../inc/Server.hpp"
-#include "../inc/response.hpp"
-#include <sstream>
-#include <cstring>
-#include <cerrno>
 
 void Server::thisClientConnect() {
 	struct sockaddr_in client_addr;
@@ -209,7 +215,7 @@ void Server::thisClientConnect() {
 
 		// Set nickname as "User" followed by the file descriptor.
 		std::ostringstream ossFd;
-		ossFd << "User" << client_fd;
+		ossFd << "user" << client_fd;
 		new_client->setNickname(ossFd.str());
 		_clients[client_fd] = new_client;
 

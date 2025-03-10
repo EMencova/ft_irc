@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/09 22:07:40 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 14:34:04 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 #include "../../inc/response.hpp"
 
 void Server::setNickname(Client *client, std::string message) {
+	std::string old_nick = client->getNickname();
 	std::string new_nickname = message.substr(5);
-	while (!new_nickname.empty() && (new_nickname[new_nickname.size() - 1] == '\n' ||
-									  new_nickname[new_nickname.size() - 1] == '\r')) {
+	while (!new_nickname.empty() &&
+			(new_nickname[new_nickname.size() - 1] == '\n' ||
+			new_nickname[new_nickname.size() - 1] == '\r')) {
 		new_nickname.erase(new_nickname.size() - 1, 1);
 	}
 
@@ -36,5 +38,13 @@ void Server::setNickname(Client *client, std::string message) {
 		client->setNickname(new_nickname);
 		std::string success_message = "Nickname changed to: " + client->getNickname() + "\r\n";
 		client->sendMessage(success_message, client->getFd());
+
+		// :<old_nick>!<user>@<host> NICK :<new_nick>\r\n
+		
+		if (client->getChannel() != NULL) {
+			std::string nickChangeMsg = ":" + old_nick + "!" + client->getUsername() + "@" + client->getHost() +
+										" NICK :" + new_nickname + "\r\n";
+			client->getChannel()->sendMessageToClients(nickChangeMsg, client);
+		}
 	}
 }

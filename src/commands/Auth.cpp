@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 07:04:10 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 14:47:39 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,12 @@ void Server::authenticateClient(Client *client) {
 				}
 
 				// Use ostringstream to build the debug log message
-				std::ostringstream oss, user_oss, nick_oss;
-				oss << "Debug: Received password from FD " << client_fd << ": '" << password << "'";
+				// std::ostringstream oss, user_oss, nick_oss;
+				std::ostringstream user_oss, nick_oss;
+				// oss << "Debug: Received password from FD " << client_fd << ": '" << password << "'";
 				user_oss << "user" << client_fd;
 				nick_oss << "nick" << client_fd;
-				irc_log(oss.str());
+				// irc_log(oss.str());
 
 				if (password == _pswrd) {
 					std::ostringstream oss2;

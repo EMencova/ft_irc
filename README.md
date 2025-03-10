@@ -363,7 +363,7 @@ To test your IRC server implementation, you can use one of the following IRC cli
 ******************************************
 
 **server add -auto -tls_pass 12345 localhost 9993*
-**CONNECT localhost 9990 12345*
+**CONNECT localhost 9996 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*
