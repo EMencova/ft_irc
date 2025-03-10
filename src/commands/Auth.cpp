@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 16:10:18 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 16:15:17 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,5 +63,5 @@ void Server::authenticateClient(Client *client) {
 				thisClientDisconnect(client_fd);
 				return;
 			}
-		}
+	}
 }
