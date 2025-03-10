@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 11:12:00 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 14:05:47 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,6 @@ void Channel::sendMessageToClients(const std::string message, Client *sender) {
 		}
 	}
 }
-
-
 
 void Channel::setAdmin(Client *admin) {
 	_admin = admin;

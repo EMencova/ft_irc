@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/09 10:02:42 by ashobajo         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:32:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,33 +97,33 @@ void Server::handleMode(Client *sender, std::string message) {
 				channel->removeMode('k');
 				std::string mode_msg = "Mode -k removed for channel " + channel_name + ".\r\n";
 				sender->sendMessage(mode_msg, sender->getFd());
-			} else if (mode == 'o') {
-				std::string target_nickname;
-				iss >> target_nickname;
-				if (target_nickname.empty()) {
-					sender->sendMessage("Error: Mode -o requires a nickname parameter.\r\n", sender->getFd());
-				} else {
-					std::vector<Client *> clients = channel->getClients();
-					Client *target = NULL;
-					for (size_t j = 0; j < clients.size(); j++) {
-						if (clients[j]->getNickname() == target_nickname) {
-							target = clients[j];
-							break;
+				} else if (mode == 'o') {
+					std::string target_nickname;
+					iss >> target_nickname;
+					if (target_nickname.empty()) {
+						sender->sendMessage("Error: Mode -o requires a nickname parameter.\r\n", sender->getFd());
+					} else {
+						std::vector<Client *> clients = channel->getClients();
+						Client *target = NULL;
+						for (size_t j = 0; j < clients.size(); j++) {
+							if (clients[j]->getNickname() == target_nickname) {
+								target = clients[j];
+								break;
+							}
+						}
+						if (!target) {
+							sender->sendMessage("Error: Client " + target_nickname +
+								" is not in channel " + channel_name + ".\r\n", sender->getFd());
+						} else {
+							channel->removeOperator(target);
+							std::string mode_msg = "Mode -o: " + target_nickname +
+								" is no longer a channel operator in " + channel_name + ".\r\n";
+							sender->sendMessage(mode_msg, sender->getFd());
+							target->sendMessage("Your channel operator privileges have been removed in " +
+								channel_name + ".\r\n", target->getFd());
 						}
 					}
-					if (!target) {
-						sender->sendMessage("Error: Client " + target_nickname +
-							" is not in channel " + channel_name + ".\r\n", sender->getFd());
-					} else {
-						channel->removeOperator(target);
-						std::string mode_msg = "Mode -o: " + target_nickname +
-							" is no longer a channel operator in " + channel_name + ".\r\n";
-						sender->sendMessage(mode_msg, sender->getFd());
-						target->sendMessage("Your channel operator privileges have been removed in " +
-							channel_name + ".\r\n", target->getFd());
-					}
-				}
-			} else {
+				} else {
 				sender->sendMessage("Error: Unknown mode flag.\r\n", sender->getFd());
 			}
 		}

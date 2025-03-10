@@ -229,13 +229,20 @@ Testing the server
 	KICK #mychannel UserX
 	```
   - Verify that the specified user is removed from the channel and receives a kick notification.
+
+	// You are not an operator message is in main window
 - **Test INVITE:**
+
+  - // you'd see invite message in main irssi window
   - As an operator, type:
 	```
 	INVITE #mychannel UserY
 	```
   - Verify that UserY (if connected) receives an invitation message.
+
 - **Test TOPIC Command:**
+-
+  - //check topic when you are in the channel
   - **Viewing Topic:**
 	- Type:
 	  ```
@@ -257,18 +264,21 @@ Testing the server
 
 - **Enable/Disable Modes:**
   - **Invite-Only Mode (i):**
+    - //works perfectly
 	- As an operator, type:
 	  ```
 	  MODE #mychannel +i
 	  ```
 	- Then, from a non-invited client, try joining the channel and confirm that you get an error.
   - **Topic Restriction Mode (t):**
+    - //works perfectly
 	- Set the mode:
 	  ```
 	  MODE #mychannel +t
 	  ```
 	- Have a non-operator try to change the topic and verify that it fails.
   - **Channel Key Mode (k):**
+    - // works perfectly
 	- Set a key by typing:
 	  ```
 	  MODE #mychannel +k secretkey
@@ -353,12 +363,14 @@ To test your IRC server implementation, you can use one of the following IRC cli
 ******************************************
 
 **server add -auto -tls_pass 12345 localhost 9993*
-**CONNECT localhost 9995 12345*
+**CONNECT localhost 9990 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*
 **MSG #ch1 Message*
 **quit (IRC client leaves)*
+
+**ctrl + X to switch between networks if it glitches**
 
 
 // to see private messages
