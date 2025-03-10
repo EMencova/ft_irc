@@ -368,6 +368,8 @@ To test your IRC server implementation, you can use one of the following IRC cli
 **//close the window and you would see the private message and the //client message in the**
 **//main window.**
 
+**//if you dont see the message in the main window, go to the /query <nick> window**
+
 //I first messaged local client with <nick>
 
 Then, local client oli received
@@ -583,16 +585,12 @@ Let me know if you need further assistance!
 Abort Pending Reconnects:
 Use the following command to cancel all pending reconnections:
 
-bash
-Copy
 /rmreconns
 This will remove the reconnect attempts, so you won't see further reconnect messages.
 
 Disconnect from a Server:
 If you’re connected to a server that you don’t need, you can disconnect from it using:
 
-arduino
-Copy
 /server disconnect <server_tag>
 Replace <server_tag> with the identifier for the server (e.g., localhost6).
 

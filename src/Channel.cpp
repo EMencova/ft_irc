@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 08:26:52 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 11:12:00 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,18 +86,30 @@ void Channel::setPassword(std::string password) {
 		_modes.erase('k');
 }
 
+// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n
+
 void Channel::sendMessageToClients(const std::string message, Client *sender) {
-	std::string displayNickname = sender->getNickname();
+	// Get sender's information
+	std::string sender_nick = sender->getNickname();
+	std::string sender_ident = sender->getUsername();
+	std::string sender_host = sender->getHost();
+
 	if (isOperator(sender)) {
-		displayNickname = "@" + displayNickname;
+		sender_nick = "@" + sender_nick;
 	}
-	std::string formatted_message = "[" + displayNickname + "]: " + message + "\r\n";
+
+	// IRC-formatted message:
+	// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n
+	std::string formatted_message = ":" + sender_nick + "!" + sender_ident + "@" + sender_host +
+		" PRIVMSG " + this->getName() + " :" + message + "\r\n";
+
 	for (clients_iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (*it != sender) {
 			(*it)->sendMessage(formatted_message, (*it)->getFd());
 		}
 	}
 }
+
 
 
 void Channel::setAdmin(Client *admin) {

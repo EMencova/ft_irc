@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/09 22:03:20 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 11:07:51 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,7 @@ void Server::thisClientDisconnect(int client_fd) {
 
 
 // /server add -auto -tls_pass 12345  localhost 9997
-// /CONNECT localhost 9997 12345 mac_canalik
+// /CONNECT localhost 9997 12345
 // /MSG real Hello
 // /JOIN #ch1
 // /MSG User7 helloy
@@ -261,29 +261,23 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	std::string message = readMessage(client_fd, sender);
 	if (message.empty())
 		return;
-	// Update sender pointer from the _clients map.
 	sender = _clients[client_fd];
 
-	// Trim leading whitespace.
 	size_t first = message.find_first_not_of(" \t\n\r");
 	if (first != std::string::npos)
 		message = message.substr(first);
-	// Trim trailing whitespace.
 	size_t last = message.find_last_not_of(" \t\n\r");
 	if (last != std::string::npos)
 		message = message.substr(0, last + 1);
 
 	// Pre-registration handling.
 	if (!sender->getRegistered()) {
-		// Allow CAP commands.
 		if (message.compare(0, 3, "CAP") == 0) {
 			sender->sendMessage("CAP * LS :\r\n", client_fd);
 			return;
 		}
-		// Process PASS command.
 		if (message.find("PASS ") == 0) {
 			std::string password = message.substr(5);
-			// Remove trailing newline/carriage return characters.
 			while (!password.empty() && (password[password.size()-1] == '\n' || password[password.size()-1] == '\r')) {
 				password.erase(password.size()-1, 1);
 			}
@@ -299,7 +293,6 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 				return;
 			}
 		}
-		// Optionally allow pre-registration NICK/USER commands.
 		else if (message.find("NICK ") == 0) {
 			setNickname(sender, message);
 			return;
@@ -309,7 +302,6 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 		} else {
 			std::string error_message = ERR_NOTREGISTERED("server") + "\r\n";
 			sender->sendMessage(error_message, client_fd);
-			// Do not disconnect immediately so that the client has time to send the proper PASS.
 			return;
 		}
 	}
