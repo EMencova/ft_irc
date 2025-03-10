@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 11:04:33 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 15:46:28 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,11 @@
 
 void Server::privateMessageClient(Client *sender, std::string message) {
 	std::string sender_nickname = sender->getNickname();
-	std::string sender_ident = sender->getUsername();  // Assuming this is set appropriately
+	std::string sender_ident = sender->getUsername();
 	std::string sender_host = sender->getHost();
 
 	size_t space_pos = message.find(' ', 8); // Skip "PRIVMSG "
 	if (space_pos != std::string::npos) {
-		// Extract target and private message text
 		std::string target = message.substr(8, space_pos - 8);
 		std::string private_message = message.substr(space_pos + 1);
 
@@ -41,17 +40,20 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 		std::string formatted_message = ":" + sender_nickname + "!" + sender_ident + "@" + sender_host +
 			" PRIVMSG " + target + " :" + private_message + "\r\n";
 
-		// If the target is a channel (starts with '#'), broadcast it to the channel's clients
 		if (!target.empty() && target[0] == '#') {
 			Channel *channel = getChannelByName(target);
 			if (channel) {
+				if (sender->getChannel() != channel) {
+					std::string error_message = ERR_NOTONCHANNEL("server", target) + "\r\n";
+					sender->sendMessage(error_message, sender->getFd());
+					return;
+				}
 				channel->sendMessageToClients(formatted_message, sender);
 			} else {
 				std::string error_message = ERR_NOSUCHCHANNEL("server", target) + "\r\n";
 				sender->sendMessage(error_message, sender->getFd());
 			}
 		}
-		// Otherwise, treat it as a private message to an individual client
 		else {
 			Client *target_client = NULL;
 			for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {

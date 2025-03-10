@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/09 22:18:34 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 15:53:30 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../../inc/response.hpp"
 
 void Server::makeOperator(Client *client, std::string message) {
+	Channel *current_channel = client->getChannel();
 	while (!message.empty() && (message[message.size()-1] == '\n' || message[message.size()-1] == '\r')) {
 		message.erase(message.size()-1, 1);
 	}
@@ -33,6 +34,7 @@ void Server::makeOperator(Client *client, std::string message) {
 		irc_log(oss2.str());
 
 		if (password == _pswrd) {
+			current_channel->addOperator(client);
 			client->set_IsOperator(true);
 			std::ostringstream oss3;
 			oss3 << "Debug: Client " << client->getNickname() << " is now an operator.";

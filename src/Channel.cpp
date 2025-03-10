@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 14:05:47 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 16:02:23 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void Channel::removeClient(Client *client) {
 		client->setChannel(NULL);
 		irc_log("Client " + client->getNickname() + " left channel " + _name);
 	}
+	removeOperator(client);
 }
 
 std::vector<Client *> Channel::getClients(){

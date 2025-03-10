@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 14:47:39 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 16:10:18 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ void Server::authenticateClient(Client *client) {
 	send(client_fd, welcome_message.c_str(), welcome_message.size(), 0);
 
 	std::string message;
-	while (true) {
 		message = readMessage(client_fd, client);
 		if (!message.empty()) {
 			if (message.find("PASS ") == 0) {
@@ -51,7 +50,7 @@ void Server::authenticateClient(Client *client) {
 
 					std::string success_message = RPL_WELCOME(auth_details.str()) + "\r\n";
 					send(client_fd, success_message.c_str(), success_message.size(), 0);
-					break;
+					return ;
 				} else {
 					std::string error_message = ERR_PASSWDMISMATCH("server") + "\r\n";
 					send(client_fd, error_message.c_str(), error_message.size(), 0);
@@ -65,6 +64,4 @@ void Server::authenticateClient(Client *client) {
 				return;
 			}
 		}
-		usleep(100000);
-	}
 }
