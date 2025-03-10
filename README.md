@@ -352,13 +352,33 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345  localhost 9999*
-**CONNECT localhost 9999 12345*
+**server add -auto -tls_pass 12345 localhost 9993*
+**CONNECT localhost 9995 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*
 **MSG #ch1 Message*
 **quit (IRC client leaves)*
+
+
+// to see private messages
+**/query <nick>*
+**/window close** //to close a particular chat or channel window
+
+**//close the window and you would see the private message and the //client message in the**
+**//main window.**
+
+//I first messaged local client with <nick>
+
+Then, local client oli received
+
+NICK oli
+Nickname changed to: oli
+[PM from mac
+USER mac mac localhost :mac]: :booni
+PRIVMSG mac mowa
+PRIVMSG mac sho sure
+// all these shows //
 
 // If you create a join the channel with #ch irssi would be able to
 // message everyone in the ch with /MSG #ch1 Message
@@ -558,4 +578,21 @@ Let me know if you need further assistance!
 
 
 
+
+
+Abort Pending Reconnects:
+Use the following command to cancel all pending reconnections:
+
+bash
+Copy
+/rmreconns
+This will remove the reconnect attempts, so you won't see further reconnect messages.
+
+Disconnect from a Server:
+If you’re connected to a server that you don’t need, you can disconnect from it using:
+
+arduino
+Copy
+/server disconnect <server_tag>
+Replace <server_tag> with the identifier for the server (e.g., localhost6).
 

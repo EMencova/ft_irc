@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/09 10:02:27 by ashobajo         ###   ########.fr       */
+/*   Updated: 2025/03/10 08:26:52 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,12 +87,18 @@ void Channel::setPassword(std::string password) {
 }
 
 void Channel::sendMessageToClients(const std::string message, Client *sender) {
-	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
+	std::string displayNickname = sender->getNickname();
+	if (isOperator(sender)) {
+		displayNickname = "@" + displayNickname;
+	}
+	std::string formatted_message = "[" + displayNickname + "]: " + message + "\r\n";
+	for (clients_iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (*it != sender) {
-			(*it)->sendMessage(message, (*it)->getFd());
+			(*it)->sendMessage(formatted_message, (*it)->getFd());
 		}
 	}
 }
+
 
 void Channel::setAdmin(Client *admin) {
 	_admin = admin;

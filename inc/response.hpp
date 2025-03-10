@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 10:55:10 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 10:58:13 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 07:07:48 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,10 @@
 #define ERR_NOTREGISTERED(source)						("451 " + std::string(source) + " :You have not registered")
 #define ERR_ALREADYREGISTERED(source)					("462 " + std::string(source) + " :You may not register")
 #define ERR_PASSWDMISMATCH(source)						("464 " + std::string(source) + " :Password is incorrect")
+
 #define ERR_NONICKNAMEGIVEN(source)						("431 " + std::string(source) + " :Nickname not given")
 #define ERR_NICKNAMEINUSE(source)						("433 " + std::string(source) + " " + std::string(source)  + " :Nickname is already in use")
+
 #define ERR_UNKNOWNCOMMAND(source, command)				("421 " + std::string(source) + " " + std::string(command) + " :Unknown command")
 #define ERR_NEEDMOREPARAMS(source, command)				("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters")
 #define ERR_TOOMANYCHANNELS(source, channel)			("405 " + std::string(source) + " " + std::string(channel) + " :You have joined too many channels")
