@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 08:23:57 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/14 10:52:59 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <algorithm>
+#include <unordered_map>
 
 #include "Channel.hpp"
 

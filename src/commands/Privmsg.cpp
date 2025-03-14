@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 15:46:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/11 06:50:18 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 		std::string target = message.substr(8, space_pos - 8);
 		std::string private_message = message.substr(space_pos + 1);
 
-		// Construct the IRC-formatted message
+		//IRC-formatted message
 		std::string formatted_message = ":" + sender_nickname + "!" + sender_ident + "@" + sender_host +
 			" PRIVMSG " + target + " :" + private_message + "\r\n";
 

@@ -4,6 +4,10 @@ https://www.rfc-editor.org/rfc/rfc2812.html
 # You must be able to authenticate, set a nickname, a username, join a channel,
 # send and receive private messages using your reference client.
 
+https://modern.ircdocs.horse/#connection-registration
+The PASS command is not required for the connection to be registered, but if included it MUST precede the latter of the NICK and USER commands. i.e it mus tbe sent before you can set nick or username.
+
+
 
 Join Command
 
@@ -362,8 +366,8 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345 localhost 9993*
-**CONNECT localhost 9996 12345*
+**server add -auto -tls_pass 12345 localhost 9997*
+**CONNECT localhost 9997 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*

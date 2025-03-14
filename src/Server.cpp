@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/10 16:29:47 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/11 08:30:00 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,29 @@ void Server::startServer() {
 		}
 	}
 }
+
+// #define _GNU_SOURCE
+// # include <unistd.h>
+// # include <signal.h>
+
+
+// void	handle_sigint(int sig)
+// {
+// 	(void)sig;
+// 	write(1, "\n", 1);
+// }
+
+// void	handle_sigquit(int sig)
+// {
+// 	(void)sig;
+// 	write(1, "\n", 1);
+// }
+
+// void	handle_signals(void)
+// {
+// 	signal(SIGINT, handle_sigint);
+// 	signal(SIGQUIT, handle_sigquit);
+// }
 
 std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
