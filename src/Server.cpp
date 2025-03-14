@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/14 16:32:49 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/14 17:56:53 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,16 +129,15 @@ std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
 	char buffer[1024];
 	ssize_t bytes_read;
-	std::string& clientBuffer = client->getBuffer();
-	size_t newlinePos = clientBuffer.find("\n");
-	clientBuffer.erase(0, newlinePos + 1);
 
 	while (true) {
 		bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 		if (bytes_read > 0) {
 			buffer[bytes_read] = '\0';
-			client->appendToBuffer(buffer);
-			message = (client->getBuffer());
+			message.append(buffer);
+			if (message.find("\r\n") != std::string::npos) {
+				break;
+			}
 		} else if (bytes_read == 0) {
 			if (!client->getNickname().empty()) {
 				std::ostringstream oss;
@@ -164,6 +163,7 @@ std::string Server::readMessage(int client_fd, Client *client) {
 		}
 	}
 
+	// Trim leading and trailing whitespace (including CR and LF)
 	size_t first = message.find_first_not_of(" \t\r\n");
 	if (first != std::string::npos)
 		message = message.substr(first);

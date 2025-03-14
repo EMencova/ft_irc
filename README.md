@@ -366,8 +366,8 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345 localhost 9997*
-**CONNECT localhost 9997 12345*
+**server add -auto -tls_pass 12345 localhost 9985*
+**CONNECT localhost 9985 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*
@@ -375,6 +375,10 @@ To test your IRC server implementation, you can use one of the following IRC cli
 **quit (IRC client leaves)*
 
 **ctrl + X to switch between networks if it glitches**
+
+delete or stop reconns
+**/rmreconns to abort timed-out connections**
+**/server remove localhost 9985**
 
 
 // to see private messages

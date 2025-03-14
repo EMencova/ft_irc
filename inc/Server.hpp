@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/09 09:50:38 by ashobajo         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:58:28 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
-#include <sstream> 
+#include <sstream>
 #include <cerrno>
 
 #include "Client.hpp"
@@ -64,6 +64,7 @@ class Server
 
 		int createNewSocket();
 		void startServer();
+		void closeServer();
 		void thisClientConnect();
 		void thisClientDisconnect(int client_fd);
 		void thisClientMessage(int client_fd, Client *sender);
