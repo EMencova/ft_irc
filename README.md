@@ -366,8 +366,8 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345 localhost 9985*
-**CONNECT localhost 9985 12345*
+**/server add -auto -tls_pass 12345 localhost 9987*
+**CONNECT localhost 9987 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*

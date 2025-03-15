@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/14 17:56:53 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 06:59:38 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,15 +129,30 @@ std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
 	char buffer[1024];
 	ssize_t bytes_read;
+	std::string& clientBuffer = client->getBuffer();
+	size_t newlinePos = clientBuffer.find("\n\r");
+	clientBuffer.erase(0, newlinePos + 1);
 
 	while (true) {
 		bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 		if (bytes_read > 0) {
 			buffer[bytes_read] = '\0';
-			message.append(buffer);
-			if (message.find("\r\n") != std::string::npos) {
+			client->appendToBuffer(buffer);
+			message = (client->getBuffer());
+			if (message.find("\n") != std::string::npos || message.find("\n\r") != std::string::npos) {
+				client->getBuffer().clear();
 				break;
 			}
+
+// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+// 			if (bytes_read > 0) {
+// 				buffer[bytes_read] = '\0';
+// 				message.append(buffer);
+// 				if (message.find("\r\n") != std::string::npos) {
+// 					break;
+// 				}
+
+
 		} else if (bytes_read == 0) {
 			if (!client->getNickname().empty()) {
 				std::ostringstream oss;
@@ -163,7 +178,6 @@ std::string Server::readMessage(int client_fd, Client *client) {
 		}
 	}
 
-	// Trim leading and trailing whitespace (including CR and LF)
 	size_t first = message.find_first_not_of(" \t\r\n");
 	if (first != std::string::npos)
 		message = message.substr(first);
@@ -186,6 +200,134 @@ std::string Server::readMessage(int client_fd, Client *client) {
 	}
 	return message;
 }
+
+
+// std::string Server::readMessage(int client_fd, Client *client) {
+// 	std::string message;
+
+// 	if (client->get_IsLocal() == true){
+// 		// std::string message;
+// 		char buffer[1024];
+// 		ssize_t bytes_read;
+// 		std::string& clientBuffer = client->getBuffer();
+// 		size_t newlinePos = clientBuffer.find("\n");
+// 		clientBuffer.erase(0, newlinePos + 1);
+
+// 		while (true) {
+// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+// 			if (bytes_read > 0) {
+// 				buffer[bytes_read] = '\0';
+// 				client->appendToBuffer(buffer);
+// 				message = (client->getBuffer());
+// 			} else if (bytes_read == 0) {
+// 				if (!client->getNickname().empty()) {
+// 					std::ostringstream oss;
+// 					oss << "Client " << client->getNickname() << " disconnected.";
+// 					irc_log(oss.str());
+// 				} else {
+// 					std::ostringstream oss;
+// 					oss << "Client FD " << client_fd << " disconnected.";
+// 					irc_log(oss.str());
+// 				}
+// 				thisClientDisconnect(client_fd);
+// 				return "";
+// 			} else {
+// 				if (errno == EWOULDBLOCK || errno == EAGAIN)
+// 					break;
+// 				else {
+// 					std::ostringstream oss;
+// 					oss << "recv() failed: " << strerror(errno);
+// 					irc_log(oss.str());
+// 					thisClientDisconnect(client_fd);
+// 					return "";
+// 				}
+// 			}
+// 		}
+// 		// Trim leading and trailing whitespace (including CR and LF)
+// 		size_t first = message.find_first_not_of(" \t\r\n");
+// 		if (first != std::string::npos)
+// 			message = message.substr(first);
+// 		else
+// 			message = "";
+
+// 		size_t last = message.find_last_not_of(" \t\r\n");
+// 		if (last != std::string::npos)
+// 			message = message.substr(0, last + 1);
+
+// 		// Log the message only if non-empty after trimming.
+// 		if (!message.empty()) {
+// 			std::ostringstream oss;
+// 			if (!client->getNickname().empty()) {
+// 				oss << "Message from " << client->getNickname() << ": " << message;
+// 			} else {
+// 				oss << "Message from FD " << client_fd << ": " << message;
+// 			}
+// 			irc_log(oss.str());
+// 		}
+// 		return message;
+// 	}
+
+// 	else if(client->get_IsLocal() == false){
+// 		// std::string message;
+// 		char buffer[1024];
+// 		ssize_t bytes_read;
+// 		while (true) {
+// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+// 			if (bytes_read > 0) {
+// 				buffer[bytes_read] = '\0';
+// 				message.append(buffer);
+// 				if (message.find("\r\n") != std::string::npos) {
+// 					break;
+// 				}
+// 			} else if (bytes_read == 0) {
+// 				if (!client->getNickname().empty()) {
+// 					std::ostringstream oss;
+// 					oss << "Client " << client->getNickname() << " disconnected.";
+// 					irc_log(oss.str());
+// 				} else {
+// 					std::ostringstream oss;
+// 					oss << "Client FD " << client_fd << " disconnected.";
+// 					irc_log(oss.str());
+// 				}
+// 				thisClientDisconnect(client_fd);
+// 				return "";
+// 			} else {
+// 				if (errno == EWOULDBLOCK || errno == EAGAIN)
+// 					break;
+// 				else {
+// 					std::ostringstream oss;
+// 					oss << "recv() failed: " << strerror(errno);
+// 					irc_log(oss.str());
+// 					thisClientDisconnect(client_fd);
+// 					return "";
+// 				}
+// 			}
+// 		}
+// 		// Trim leading and trailing whitespace (including CR and LF)
+// 		size_t first = message.find_first_not_of(" \t\r\n");
+// 		if (first != std::string::npos)
+// 			message = message.substr(first);
+// 		else
+// 			message = "";
+
+// 		size_t last = message.find_last_not_of(" \t\r\n");
+// 		if (last != std::string::npos)
+// 			message = message.substr(0, last + 1);
+
+// 		// Log the message only if non-empty after trimming.
+// 		if (!message.empty()) {
+// 			std::ostringstream oss;
+// 			if (!client->getNickname().empty()) {
+// 				oss << "Message from " << client->getNickname() << ": " << message;
+// 			} else {
+// 				oss << "Message from FD " << client_fd << ": " << message;
+// 			}
+// 			irc_log(oss.str());
+// 		}
+// 		return message;
+// 	}
+// 	return message;
+// }
 
 void Server::thisClientConnect() {
 	struct sockaddr_in client_addr;
@@ -231,17 +373,17 @@ void Server::thisClientConnect() {
 		std::string clientPort = ossPort.str();
 
 		Client *new_client = new Client(client_fd, clientPort, std::string(hostname));
+		// new_client->set_IsLocal(false);
 
 		authenticateClient(new_client);
 
 		_clients[client_fd] = new_client;
 
-		// Set nickname as "User" followed by the file descriptor.
+		// Set nickname as "user" followed by the file descriptor.
 		std::ostringstream ossFd;
 		ossFd << "user" << client_fd;
 		new_client->setNickname(ossFd.str());
 		_clients[client_fd] = new_client;
-
 		std::ostringstream ossLog;
 		ossLog << "New client connected: FD " << client_fd << ", Nickname: " << new_client->getNickname();
 		irc_log(ossLog.str());
@@ -275,8 +417,9 @@ void Server::thisClientDisconnect(int client_fd) {
 }
 
 
-// /server add -auto -tls_pass 12345  localhost 9997
-// /CONNECT localhost 9997 12345
+// /server add -auto -tls_pass 12345 localhost 9984
+//****** this CONNECT command must be capital letter***
+// /CONNECT localhost 9984 12345
 // /MSG real Hello
 // /JOIN #ch1
 // /MSG User7 helloy
@@ -287,6 +430,12 @@ void Server::thisClientDisconnect(int client_fd) {
 // message everyone in the ch with /MSG #ch1 Message
 
 void Server::thisClientMessage(int client_fd, Client *sender) {
+	// 	Client *new_client = _clients[_pollfds[i].fd];
+	// if (new_client->getNickname().find("user") != std::string::npos) {
+	// 	new_client->set_IsLocal(true);
+	// if (sender->getNickname().find("user") != std::string::npos)
+		// sender->set_IsLocal(true);
+
 	std::string message = readMessage(client_fd, sender);
 	if (message.empty())
 		return;
@@ -303,6 +452,7 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	if (!sender->getRegistered()) {
 		if (message.compare(0, 3, "CAP") == 0) {
 			sender->sendMessage("CAP * LS :\r\n", client_fd);
+			sender->set_IsLocal(false);
 			return;
 		}
 		if (message.find("PASS ") == 0) {
@@ -318,7 +468,7 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 			} else {
 				std::string error_message = ERR_PASSWDMISMATCH("server") + "\r\n";
 				sender->sendMessage(error_message, client_fd);
-				thisClientDisconnect(client_fd);
+				// thisClientDisconnect(client_fd);
 				return;
 			}
 		}

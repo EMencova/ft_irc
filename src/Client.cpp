@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ashobajo <ashobajo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:47:29 by mac               #+#    #+#             */
-/*   Updated: 2025/03/09 10:22:04 by ashobajo         ###   ########.fr       */
+/*   Updated: 2025/03/14 21:27:13 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 Client::Client() { }
 
-Client::Client(int fd, std::string port, std::string host) 
-: _fd(fd), _host(host), _port(port), _channel(NULL), _registered(false), _is_operator(false)
+Client::Client(int fd, std::string port, std::string host)
+: _fd(fd), _host(host), _port(port), _channel(NULL), _registered(false), _is_operator(false), _islocal(false)
 { }
 
 Client::~Client() { }

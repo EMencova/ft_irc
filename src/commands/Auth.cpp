@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/14 17:54:17 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 06:44:17 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,13 +54,13 @@ void Server::authenticateClient(Client *client) {
 				} else {
 					std::string error_message = ERR_PASSWDMISMATCH("server") + "\r\n";
 					send(client_fd, error_message.c_str(), error_message.size(), 0);
-					thisClientDisconnect(client_fd);
+					// thisClientDisconnect(client_fd);
 					return;
 				}
 			} else {
 				std::string error_message = ERR_NOTREGISTERED("server") + "\r\n";
 				send(client_fd, error_message.c_str(), error_message.size(), 0);
-				thisClientDisconnect(client_fd);
+				// thisClientDisconnect(client_fd);
 				return;
 			}
 	}
