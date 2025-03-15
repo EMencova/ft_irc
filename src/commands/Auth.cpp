@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/15 06:44:17 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 07:19:29 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@ void Server::authenticateClient(Client *client) {
 				while (!password.empty() && (password[password.size()-1] == '\n' || password[password.size()-1] == '\r')) {
 					password.erase(password.size()-1, 1);
 				}
-
-				// Use ostringstream to build the debug log message
 				// std::ostringstream oss, user_oss, nick_oss;
 				std::ostringstream user_oss, nick_oss;
 				// oss << "Debug: Received password from FD " << client_fd << ": '" << password << "'";

@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/14 18:40:27 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 07:18:47 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ class Client {
 		bool						_registered;
 		bool						_is_operator;
 		std::string					_partialMessage; //CGM
-		bool						_islocal;
 
 	public:
 		Client ();
@@ -54,7 +53,6 @@ class Client {
 		Channel *getChannel();
 		bool getRegistered();
 		bool get_IsOperator();
-		bool get_IsLocal(){return _islocal;}
 		std::string &getBuffer();
 
 		void setFd(int fd);
@@ -65,7 +63,6 @@ class Client {
 		void setChannel(Channel *channel);
 		void setRegistered(bool registered);
 		void set_IsOperator(bool is_operator);
-		void set_IsLocal(bool islocal) {_islocal = islocal;};
 
 		void welcomeMessage(std::string host, std::string port);
 		void sendMessage(std::string message, int fd);

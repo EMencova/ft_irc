@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/14 16:58:28 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 07:19:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ class Server
 		std::vector<pollfd>			_pollfds;
 		std::map<int, Client *>		_clients;
 		std::vector<Channel *>		_channels;
-		// CommandHandler*			_commandHandler;
 
 	public:
 		Server();

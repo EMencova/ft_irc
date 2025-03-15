@@ -6,13 +6,12 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 15:38:00 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/15 07:22:14 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Server.hpp"
 #include "../../inc/response.hpp"
-
 
 // *****************************
 // irc channel mut be preceeded with # or other prefix. So if no #, no channel should be created
@@ -29,39 +28,8 @@
 // 08:21 -!- Channel #ch1 created Mon Mar 10 08:21:08 2025
 // 08:21 -!- Irssi: Join to #ch1 was synced in 8 secs
 
-// static void broadcastJoinMessage(Channel *channel, Client *sender, std::string channel_name ){
-// 	std::string joinMsg = ":" + sender->getNickname() + " has joined " + channel_name + "\r\n" +
-// 		"[Users " + channel_name + "]" "\r\n";
-// 	channel->sendMessageToClients(joinMsg, sender);
-// 	sender->sendMessage(joinMsg, sender->getFd());
-
-// 	if (!channel->getTopic().empty()) {
-// 		std::string topicReply = "332 " + sender->getNickname() + " " + channel_name + " :"
-// 			+ channel->getTopic() + "\r\n";
-// 		sender->sendMessage(topicReply, sender->getFd());
-// 	}
-
-// 	// :<server> 353 <nick> <channel_type> <channel> :[[@|+]<nick> { [@|+]<nick> } ...]
-
-// 	std::string namesList;
-// 	std::vector<Client *> clients = channel->getClients();
-// 	for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it) {
-// 		std::string nick = (*it)->getNickname();
-// 		if (channel->isOperator(*it))
-// 			nick = "@" + nick;
-// 		namesList += nick + " ";
-// 	}
-
-// 	std::string namesReply = "353 " + sender->getNickname() + " = " + channel_name
-// 		+ " :" + namesList + "\r\n";
-// 	std::string endNamesReply = "366 " + sender->getNickname() + " " + channel_name
-// 		+ " :End of /NAMES list\r\n";
-// 	sender->sendMessage(namesReply, sender->getFd());
-// 	sender->sendMessage(endNamesReply, sender->getFd());
-// }
-
 static void broadcastJoinMessage(Channel *channel, Client *sender, const std::string &channel_name) {
-	// Build the standard JOIN message with full prefix information.
+	// JOIN message with irssi prefix information.
 	std::string joinMsg = ":" + sender->getNickname() + "!" + sender->getUsername() + "@" + sender->getHost() +
 						  " JOIN " + channel_name + "\r\n" +
 						  "[Users " + channel_name + "]\r\n";
@@ -74,11 +42,10 @@ static void broadcastJoinMessage(Channel *channel, Client *sender, const std::st
 		sender->sendMessage(topicReply, sender->getFd());
 	}
 
-	// Build the names list (353) and end-of-names (366) replies.
+	// names list (353) and end-of-names (366) replies.
 	std::string namesList;
 	std::vector<Client *> clients = channel->getClients();
 	for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it) {
-		// Debug print to verify the nickname value.
 		std::string nick = (*it)->getNickname();
 		irc_log("DEBUG: Adding client nickname: " + nick);
 		if (channel->isOperator(*it))
@@ -121,7 +88,7 @@ void Server::joinChannel(Client *sender, std::string message) {
 		return;
 	}
 
-	// Proceed with joining or creating the channel
+	//join or create the channel
 	Channel *channel = getChannelByName(channel_name);
 	if (channel) {
 		if (channel->hasMode('i') && !channel->isInvited(sender)) {
