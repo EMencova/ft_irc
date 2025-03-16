@@ -4,6 +4,10 @@ https://www.rfc-editor.org/rfc/rfc2812.html
 # You must be able to authenticate, set a nickname, a username, join a channel,
 # send and receive private messages using your reference client.
 
+https://modern.ircdocs.horse/#connection-registration
+The PASS command is not required for the connection to be registered, but if included it MUST precede the latter of the NICK and USER commands. i.e it mus tbe sent before you can set nick or username.
+
+
 
 Join Command
 
@@ -229,13 +233,20 @@ Testing the server
 	KICK #mychannel UserX
 	```
   - Verify that the specified user is removed from the channel and receives a kick notification.
+
+	// You are not an operator message is in main window
 - **Test INVITE:**
+
+  - // you'd see invite message in main irssi window
   - As an operator, type:
 	```
 	INVITE #mychannel UserY
 	```
   - Verify that UserY (if connected) receives an invitation message.
+
 - **Test TOPIC Command:**
+-
+  - //check topic when you are in the channel
   - **Viewing Topic:**
 	- Type:
 	  ```
@@ -257,18 +268,21 @@ Testing the server
 
 - **Enable/Disable Modes:**
   - **Invite-Only Mode (i):**
+    - //works perfectly
 	- As an operator, type:
 	  ```
 	  MODE #mychannel +i
 	  ```
 	- Then, from a non-invited client, try joining the channel and confirm that you get an error.
   - **Topic Restriction Mode (t):**
+    - //works perfectly
 	- Set the mode:
 	  ```
 	  MODE #mychannel +t
 	  ```
 	- Have a non-operator try to change the topic and verify that it fails.
   - **Channel Key Mode (k):**
+    - // works perfectly
 	- Set a key by typing:
 	  ```
 	  MODE #mychannel +k secretkey
@@ -352,13 +366,41 @@ To test your IRC server implementation, you can use one of the following IRC cli
 
 ******************************************
 
-**server add -auto -tls_pass 12345  localhost 9997*
-**CONNECT localhost 9997 12345 mac_canalik*
+**/server add -auto -tls_pass 12345 localhost 9987*
+**CONNECT localhost 9987 12345*
 **MSG real Hello*
 **JOIN #ch1*
 **MSG User7 helloy*
 **MSG #ch1 Message*
 **quit (IRC client leaves)*
+
+**ctrl + X to switch between networks if it glitches**
+
+delete or stop reconns
+**/rmreconns to abort timed-out connections**
+**/server remove localhost 9985**
+
+
+// to see private messages
+**/query <nick>*
+**/window close** //to close a particular chat or channel window
+
+**//close the window and you would see the private message and the //client message in the**
+**//main window.**
+
+**//if you dont see the message in the main window, go to the /query <nick> window**
+
+//I first messaged local client with <nick>
+
+Then, local client oli received
+
+NICK oli
+Nickname changed to: oli
+[PM from mac
+USER mac mac localhost :mac]: :booni
+PRIVMSG mac mowa
+PRIVMSG mac sho sure
+// all these shows //
 
 // If you create a join the channel with #ch irssi would be able to
 // message everyone in the ch with /MSG #ch1 Message
@@ -554,7 +596,21 @@ For quick testing, you can use `nc` (Netcat) or `telnet` to connect to your serv
 - For **interactive testing**, use `irssi` or `weechat` (terminal-based) or `HexChat` (graphical).
 - For **web-based testing**, use `Kiwi IRC`.
 
+Let me know if you need further assistance!
 
 
 
+
+
+Abort Pending Reconnects:
+Use the following command to cancel all pending reconnections:
+
+/rmreconns
+This will remove the reconnect attempts, so you won't see further reconnect messages.
+
+Disconnect from a Server:
+If you’re connected to a server that you don’t need, you can disconnect from it using:
+
+/server disconnect <server_tag>
+Replace <server_tag> with the identifier for the server (e.g., localhost6).
 

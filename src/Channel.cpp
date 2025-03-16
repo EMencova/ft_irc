@@ -6,7 +6,7 @@
 /*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 17:25:12 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/16 19:50:29 by eliskam          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void Channel::removeClient(Client *client) {
 		client->setChannel(NULL);
 		irc_log("Client " + client->getNickname() + " left channel " + _name);
 	}
+	removeOperator(client);
 }
 
 std::vector<Client *> Channel::getClients(){
@@ -86,10 +87,26 @@ void Channel::setPassword(std::string password) {
 		_modes.erase('k');
 }
 
+// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n
+
 void Channel::sendMessageToClients(const std::string message, Client *sender) {
-	for (clients_iterator it = _clients.begin(); it != _clients.end(); it++) {
+	// Get sender's information
+	std::string sender_nick = sender->getNickname();
+	std::string sender_ident = sender->getUsername();
+	std::string sender_host = sender->getHost();
+
+	if (isOperator(sender)) {
+		sender_nick = "@" + sender_nick;
+	}
+
+	// IRC-formatted message:
+	// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n
+	std::string formatted_message = ":" + sender_nick + "!" + sender_ident + "@" + sender_host +
+		" PRIVMSG " + this->getName() + " :" + message + "\r\n";
+
+	for (clients_iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (*it != sender) {
-			(*it)->sendMessage(message, (*it)->getFd());
+			(*it)->sendMessage(formatted_message, (*it)->getFd());
 		}
 	}
 }

@@ -6,12 +6,15 @@
 /*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 17:23:50 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/16 20:18:59 by eliskam          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include "../inc/response.hpp"
+#include <sstream>
+#include <cstring>
+#include <cerrno>
 
 Server::Server() { }
 
@@ -21,13 +24,7 @@ Server::Server(const std::string &port, const std::string &pswrd)
 	_socket = createNewSocket();
 }
 
-Server::~Server() { }
-
-std::string toString(int value)
-{
-    std::stringstream ss;
-    ss << value;
-    return ss.str();
+Server::~Server() { 
 }
 
 int Server::createNewSocket() {
@@ -56,7 +53,7 @@ int Server::createNewSocket() {
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(std::atoi(_port.c_str()));
+	server_addr.sin_port = htons((unsigned short)atoi(_port.c_str()));
 
 	if (bind(socket_fd, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
 		irc_log("bind() failed");
@@ -73,6 +70,7 @@ int Server::createNewSocket() {
 	irc_log("Server listening on port: " + _port);
 	return socket_fd;
 }
+
 
 void Server::startServer() {
 	_pollfds.clear();
@@ -100,35 +98,50 @@ void Server::startServer() {
 			}
 
 			if (_pollfds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) {
-				thisClientDisconnect(_pollfds[i].fd);
+				thisClientDisconnect(_pollfds[i].fd); 
 			}
 		}
 	}
 }
 
+
 std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
 	char buffer[1024];
 	ssize_t bytes_read;
+	std::string& clientBuffer = client->getBuffer();
+	size_t newlinePos = clientBuffer.find("\n\r");
+	clientBuffer.erase(0, newlinePos + 1);
 
 	while (true) {
 		bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-
 		if (bytes_read > 0) {
 			buffer[bytes_read] = '\0';
-			message.append(buffer);
-
-			if (message.find("\r\n") != std::string::npos) {
+			client->appendToBuffer(buffer);
+			message = (client->getBuffer());
+			if (message.find("\n") != std::string::npos || message.find("\n\r") != std::string::npos) {
+				client->getBuffer().clear();
 				break;
 			}
+
+// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+// 			if (bytes_read > 0) {
+// 				buffer[bytes_read] = '\0';
+// 				message.append(buffer);
+// 				if (message.find("\r\n") != std::string::npos) {
+// 					break;
+// 				}
+
+
 		} else if (bytes_read == 0) {
-			if (!client->getNickname().empty())
-				irc_log("Client " + client->getNickname() + " disconnected.");
-			else
-			{
+			if (!client->getNickname().empty()) {
 				std::ostringstream oss;
-				oss << client_fd;
-				irc_log("Client FD " + oss.str() + " disconnected.");
+				oss << "Client " << client->getNickname() << " disconnected.";
+				irc_log(oss.str());
+			} else {
+				std::ostringstream oss;
+				oss << "Client FD " << client_fd << " disconnected.";
+				irc_log(oss.str());
 			}
 			thisClientDisconnect(client_fd);
 			return "";
@@ -136,17 +149,34 @@ std::string Server::readMessage(int client_fd, Client *client) {
 			if (errno == EWOULDBLOCK || errno == EAGAIN)
 				break;
 			else {
-				irc_log("recv() failed");
+				std::ostringstream oss;
+				oss << "recv() failed: " << strerror(errno);
+				irc_log(oss.str());
 				thisClientDisconnect(client_fd);
 				return "";
 			}
 		}
 	}
+
+	size_t first = message.find_first_not_of(" \t\r\n");
+	if (first != std::string::npos)
+		message = message.substr(first);
+	else
+		message = "";
+
+	size_t last = message.find_last_not_of(" \t\r\n");
+	if (last != std::string::npos)
+		message = message.substr(0, last + 1);
+
+	// Log the message only if non-empty after trimming.
 	if (!message.empty()) {
-		if (!client->getNickname().empty())
-			irc_log("Message from " + client->getNickname() + ": " + message);
-		else
-			irc_log("Message from FD " + toString(client_fd) + ": " + message);
+		std::ostringstream oss;
+		if (!client->getNickname().empty()) {
+			oss << "Message from " << client->getNickname() << ": " << message;
+		} else {
+			oss << "Message from FD " << client_fd << ": " << message;
+		}
+		irc_log(oss.str());
 	}
 	return message;
 }
@@ -154,7 +184,7 @@ std::string Server::readMessage(int client_fd, Client *client) {
 void Server::thisClientConnect() {
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);
-	int client_fd = accept(_pollfds.begin()->fd, (sockaddr *)&client_addr, &client_addr_len);
+	int client_fd = accept(_pollfds.begin()->fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
 	if (client_fd < 0) {
 		if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -169,33 +199,45 @@ void Server::thisClientConnect() {
 		return;
 	}
 
-	if ((fcntl(client_fd, F_SETFL, client_fds_flags | O_NONBLOCK)) < 0) {
+	if (fcntl(client_fd, F_SETFL, client_fds_flags | O_NONBLOCK) < 0) {
 		irc_log("set client flags failed");
 		close(client_fd);
 		return;
 	}
 
 	if (_pollfds.size() < MAXCLIENT) {
-		pollfd client_fd_poll = { client_fd, POLLIN, 0 };
+		pollfd client_fd_poll;
+		client_fd_poll.fd = client_fd;
+		client_fd_poll.events = POLLIN;
+		client_fd_poll.revents = 0;
 		_pollfds.push_back(client_fd_poll);
 
 		char hostname[1024];
-		if ((getnameinfo((sockaddr *)&client_addr, client_addr_len, hostname, 1024, NULL, 0, 0)) == 0)
+		if (getnameinfo((struct sockaddr *)&client_addr, client_addr_len, hostname, 1024, NULL, 0, 0) == 0)
 			irc_log("New connection from: " + std::string(hostname));
 		else
 			irc_log("New connection from unknown host");
 
-		Client *new_client = new Client(client_fd, toString(client_addr.sin_port), std::string(hostname));
+		// ntohs Convert the client's port from network to host order and then to a string.
+		unsigned short portHost = ntohs(client_addr.sin_port);
+		std::ostringstream ossPort;
+		ossPort << portHost;
+		std::string clientPort = ossPort.str();
+
+		Client *new_client = new Client(client_fd, clientPort, std::string(hostname));
 
 		authenticateClient(new_client);
 
 		_clients[client_fd] = new_client;
 
-		new_client->setNickname("User" + toString(client_fd));
+		// We Set temporary nickname as "user" followed by the file descriptor.
+		std::ostringstream ossFd;
+		ossFd << "user" << client_fd;
+		new_client->setNickname(ossFd.str());
 		_clients[client_fd] = new_client;
-
-		irc_log("New client connected: FD " + toString(client_fd) +
-				", Nickname: " + new_client->getNickname());
+		std::ostringstream ossLog;
+		ossLog << "New client connected: FD " << client_fd << ", Nickname: " << new_client->getNickname();
+		irc_log(ossLog.str());
 	} else {
 		irc_log("Max clients reached, rejecting new connection.");
 		close(client_fd);
@@ -219,11 +261,16 @@ void Server::thisClientDisconnect(int client_fd) {
 	close(client_fd);
 	_clients.erase(client_fd);
 	delete client;
-	irc_log("Client FD " + toString(client_fd) + " disconnected.");
+
+	std::ostringstream oss;
+	oss << "Client FD " << client_fd << " disconnected.";
+	irc_log(oss.str());
 }
 
-// /server add -auto -tls_pass 12345  localhost 9997
-// /CONNECT localhost 9997 12345 mac_canalik
+
+// /server add -auto -tls_pass 12345 localhost 9984
+//****** this CONNECT command must be capital letter***
+// /CONNECT localhost 9984 12345
 // /MSG real Hello
 // /JOIN #ch1
 // /MSG User7 helloy
@@ -237,25 +284,26 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	std::string message = readMessage(client_fd, sender);
 	if (message.empty())
 		return;
-	// Update sender pointer from the _clients map.
 	sender = _clients[client_fd];
 
-	// Trim leading and trailing whitespace.
-	message.erase(0, message.find_first_not_of(" \t\n\r"));
-	message.erase(message.find_last_not_of(" \t\n\r") + 1);
+	size_t first = message.find_first_not_of(" \t\n\r");
+	if (first != std::string::npos)
+		message = message.substr(first);
+	size_t last = message.find_last_not_of(" \t\n\r");
+	if (last != std::string::npos)
+		message = message.substr(0, last + 1);
 
 	// Pre-registration handling.
 	if (!sender->getRegistered()) {
-		// Allow CAP commands.
 		if (message.compare(0, 3, "CAP") == 0) {
 			sender->sendMessage("CAP * LS :\r\n", client_fd);
 			return;
 		}
-		// Process PASS command.
 		if (message.find("PASS ") == 0) {
 			std::string password = message.substr(5);
-			while (!password.empty() && (password[password.size() - 1] == '\n' || password[password.size() - 1] == '\r'))
-				password.erase(password.size() - 1);
+			while (!password.empty() && (password[password.size()-1] == '\n' || password[password.size()-1] == '\r')) {
+				password.erase(password.size()-1, 1);
+			}
 			if (password == _pswrd) {
 				sender->setRegistered(true);
 				std::string welcome_message = RPL_WELCOME("client") + "\r\n";
@@ -264,11 +312,10 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 			} else {
 				std::string error_message = ERR_PASSWDMISMATCH("server") + "\r\n";
 				sender->sendMessage(error_message, client_fd);
-				thisClientDisconnect(client_fd);
+				// thisClientDisconnect(client_fd);
 				return;
 			}
 		}
-		// Optionally allow pre-registration NICK/USER commands.
 		else if (message.find("NICK ") == 0) {
 			setNickname(sender, message);
 			return;
@@ -278,7 +325,6 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 		} else {
 			std::string error_message = ERR_NOTREGISTERED("server") + "\r\n";
 			sender->sendMessage(error_message, client_fd);
-			// Do not disconnect immediately so that the client has time to send the proper PASS.
 			return;
 		}
 	}
@@ -286,8 +332,9 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	// For registered clients, handle PING commands.
 	if (message.find("PING ") == 0) {
 		std::string token = message.substr(5);
-		while (!token.empty() && (token[token.size() - 1] == '\n' || token[token.size() - 1] == '\r'))
-			token.erase(token.size() - 1);
+		while (!token.empty() && (token[token.size()-1] == '\n' || token[token.size()-1] == '\r')) {
+			token.erase(token.size()-1, 1);
+		}
 		std::string pong_response = "PONG :" + token + "\r\n";
 		sender->sendMessage(pong_response, client_fd);
 		return;
@@ -321,7 +368,6 @@ void Server::thisClientMessage(int client_fd, Client *sender) {
 	}
 }
 
-
 Channel *Server::createNewChannel(std::string &channel_name, std::string &channel_password, Client *client) {
 	Channel *new_channel = new Channel(channel_name, channel_password, client);
 	_channels.push_back(new_channel);
@@ -345,3 +391,47 @@ void Server::addClientToChannel(Client *client, Channel *channel) {
 Client *Server::getClientByFd(int client_fd) {
 	return _clients[client_fd];
 }
+
+
+
+
+void Server::closeServer() {
+	irc_log("\033[0;31mClosing server... with ❤️  from us\033[0m");
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		int client_fd = it->first;
+		Client *client = it->second;
+		if (client->getChannel()) {
+			client->getChannel()->removeClient(client);
+		}
+		close(client_fd);
+		delete client;
+	}
+	_clients.clear();
+
+
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+        delete *it;
+		
+    _channels.clear();
+    std::vector<Channel *> tempChannels;
+    tempChannels.swap(_channels);
+	
+    
+	for (std::vector<pollfd>::iterator it = _pollfds.begin(); it != _pollfds.end(); ++it) {
+		close(it->fd);
+	}
+	_pollfds.clear();
+	std::vector<pollfd> temp;
+	temp.swap(_pollfds);
+	close(_socket);
+
+	// Free all channels.
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		delete *it;
+	}
+	_channels.clear();
+	_running = 0;
+}
+
+
+

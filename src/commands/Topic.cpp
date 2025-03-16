@@ -6,7 +6,7 @@
 /*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:47:56 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/10 14:36:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,10 @@ void Server::handleTopic(Client *sender, std::string message) {
 			return;
 		}
 		channel->setTopic(new_topic);
-		std::string topic_message = "Channel " + channel_name + " topic changed to: " + new_topic + "\r\n";
-		channel->sendMessageToClients(topic_message, sender);
+		//using standard IRC syntax.
+		std::string topicBroadcast = ":" + sender->getNickname() + "!" + sender->getUsername() + "@" + sender->getHost() +
+									 " TOPIC " + channel_name + " :" + new_topic + "\r\n";
+		channel->sendMessageToClients(topicBroadcast, sender);
 		sender->sendMessage("Topic updated.\r\n", sender->getFd());
 	}
 }

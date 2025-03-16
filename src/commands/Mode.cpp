@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 17:25:49 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/10 14:32:53 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,10 @@ void Server::handleMode(Client *sender, std::string message) {
 						sender->sendMessage(mode_msg, sender->getFd());
 						target->sendMessage("You have been granted channel operator privileges in " +
 							channel_name + ".\r\n", target->getFd());
+						// Broadcast the mode change.
+						std::string modeBroadcast = ":" + sender->getNickname() + "!" + sender->getUsername() + "@" + sender->getHost() +
+													" MODE " + channel_name + " +o " + target_nickname + "\r\n";
+						channel->sendMessageToClients(modeBroadcast, sender);
 					}
 				}
 			} else {
@@ -97,7 +101,7 @@ void Server::handleMode(Client *sender, std::string message) {
 				channel->removeMode('k');
 				std::string mode_msg = "Mode -k removed for channel " + channel_name + ".\r\n";
 				sender->sendMessage(mode_msg, sender->getFd());
-			} else if (mode == 'o') {
+				} else if (mode == 'o') {
 				std::string target_nickname;
 				iss >> target_nickname;
 				if (target_nickname.empty()) {
@@ -121,6 +125,10 @@ void Server::handleMode(Client *sender, std::string message) {
 						sender->sendMessage(mode_msg, sender->getFd());
 						target->sendMessage("Your channel operator privileges have been removed in " +
 							channel_name + ".\r\n", target->getFd());
+						// Broadcast the mode change.
+						std::string modeBroadcast = ":" + sender->getNickname() + "!" + sender->getUsername() + "@" + sender->getHost() +
+													" MODE " + channel_name + " -o " + target_nickname + "\r\n";
+						channel->sendMessageToClients(modeBroadcast, sender);
 					}
 				}
 			} else {

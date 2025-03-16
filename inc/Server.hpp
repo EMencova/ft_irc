@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/05 17:33:42 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/15 07:19:16 by mac              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,12 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstring>
+#include <cstdlib>
 #include <sstream>
+#include <cerrno>
+
 #include "Client.hpp"
 #include "Channel.hpp"
-#include <cerrno>
 
 #define MAXCLIENT 1000
 
@@ -53,7 +55,6 @@ class Server
 		std::vector<pollfd>			_pollfds;
 		std::map<int, Client *>		_clients;
 		std::vector<Channel *>		_channels;
-		// CommandHandler*			_commandHandler;
 
 	public:
 		Server();
@@ -62,6 +63,7 @@ class Server
 
 		int createNewSocket();
 		void startServer();
+		void closeServer();
 		void thisClientConnect();
 		void thisClientDisconnect(int client_fd);
 		void thisClientMessage(int client_fd, Client *sender);
@@ -85,5 +87,3 @@ class Server
 		void handleTopic(Client *sender, std::string message);
 		void handleMode(Client *sender, std::string message);
 };
-
-std::string toString(int value);
