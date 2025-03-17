@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/15 07:43:42 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/16 19:49:36 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,14 @@ int Server::createNewSocket() {
 		return -1;
 	}
 
-	int server_flags = fcntl(socket_fd, F_GETFL, 0);
-	if (server_flags < 0) {
-		irc_log("get server flags failed");
-		close(socket_fd);
-		return -1;
-	}
+	// int server_flags = fcntl(socket_fd, F_GETFL, 0);
+	// if (server_flags < 0) {
+	// 	irc_log("get server flags failed");
+	// 	close(socket_fd);
+	// 	return -1;
+	// }
 
-	if ((fcntl(socket_fd, F_SETFL, server_flags | O_NONBLOCK)) < 0) {
+	if ((fcntl(socket_fd, F_SETFL, O_NONBLOCK)) < 0) {
 		irc_log("set server flags failed");
 		close(socket_fd);
 		return -1;
@@ -189,14 +189,14 @@ void Server::thisClientConnect() {
 		return;
 	}
 
-	int client_fds_flags = fcntl(client_fd, F_GETFL, 0);
-	if (client_fds_flags < 0) {
-		irc_log("get client flags failed");
-		close(client_fd);
-		return;
-	}
+	// int client_fds_flags = fcntl(client_fd, F_GETFL, 0);
+	// if (client_fds_flags < 0) {
+	// 	irc_log("get client flags failed");
+	// 	close(client_fd);
+	// 	return;
+	// }
 
-	if (fcntl(client_fd, F_SETFL, client_fds_flags | O_NONBLOCK) < 0) {
+	if (fcntl(client_fd, F_SETFL,O_NONBLOCK) < 0) {
 		irc_log("set client flags failed");
 		close(client_fd);
 		return;
