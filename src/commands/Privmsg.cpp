@@ -59,6 +59,7 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 			sender->handleDCCSend(target_client, clean_message);
 			return;
 		}	
+
 		//IRC-formatted message
 		std::string formatted_message = ":" + sender_nickname + "!" + sender_ident + "@" + sender_host +
 			" PRIVMSG " + target + " :" + private_message + "\r\n";

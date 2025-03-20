@@ -24,6 +24,7 @@ Server::Server(const std::string &port, const std::string &pswrd)
 	_socket = createNewSocket();
 }
 
+
 Server::~Server() { }
 
 int Server::createNewSocket() {

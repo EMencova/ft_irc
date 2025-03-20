@@ -76,6 +76,7 @@ class Client {
 
 		// hanbdle file transfer
 		void handleDCCSend(Client *target, std::string message);
+
 };
 
 #endif
