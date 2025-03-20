@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eliskam <eliskam@student.42.fr>            +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/16 20:18:59 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/20 10:43:30 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ Server::Server(const std::string &port, const std::string &pswrd)
 	_socket = createNewSocket();
 }
 
-Server::~Server() { 
-}
+
+Server::~Server() { }
 
 int Server::createNewSocket() {
 	int socket_fd;
@@ -37,14 +37,7 @@ int Server::createNewSocket() {
 		return -1;
 	}
 
-	int server_flags = fcntl(socket_fd, F_GETFL, 0);
-	if (server_flags < 0) {
-		irc_log("get server flags failed");
-		close(socket_fd);
-		return -1;
-	}
-
-	if ((fcntl(socket_fd, F_SETFL, server_flags | O_NONBLOCK)) < 0) {
+	if ((fcntl(socket_fd, F_SETFL, O_NONBLOCK)) < 0) {
 		irc_log("set server flags failed");
 		close(socket_fd);
 		return -1;
@@ -70,7 +63,6 @@ int Server::createNewSocket() {
 	irc_log("Server listening on port: " + _port);
 	return socket_fd;
 }
-
 
 void Server::startServer() {
 	_pollfds.clear();
@@ -98,12 +90,11 @@ void Server::startServer() {
 			}
 
 			if (_pollfds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) {
-				thisClientDisconnect(_pollfds[i].fd); 
+				thisClientDisconnect(_pollfds[i].fd);
 			}
 		}
 	}
 }
-
 
 std::string Server::readMessage(int client_fd, Client *client) {
 	std::string message;
@@ -123,15 +114,6 @@ std::string Server::readMessage(int client_fd, Client *client) {
 				client->getBuffer().clear();
 				break;
 			}
-
-// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-// 			if (bytes_read > 0) {
-// 				buffer[bytes_read] = '\0';
-// 				message.append(buffer);
-// 				if (message.find("\r\n") != std::string::npos) {
-// 					break;
-// 				}
-
 
 		} else if (bytes_read == 0) {
 			if (!client->getNickname().empty()) {
@@ -192,14 +174,7 @@ void Server::thisClientConnect() {
 		return;
 	}
 
-	int client_fds_flags = fcntl(client_fd, F_GETFL, 0);
-	if (client_fds_flags < 0) {
-		irc_log("get client flags failed");
-		close(client_fd);
-		return;
-	}
-
-	if (fcntl(client_fd, F_SETFL, client_fds_flags | O_NONBLOCK) < 0) {
+	if (fcntl(client_fd, F_SETFL,O_NONBLOCK) < 0) {
 		irc_log("set client flags failed");
 		close(client_fd);
 		return;
@@ -392,8 +367,14 @@ Client *Server::getClientByFd(int client_fd) {
 	return _clients[client_fd];
 }
 
-
-
+Client *Server::getClientByNickname(const std::string &nickname) {
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == nickname) {
+            return it->second;
+        }
+    }
+    return NULL;
+}
 
 void Server::closeServer() {
 	irc_log("\033[0;31mClosing server... with ❤️  from us\033[0m");
@@ -407,22 +388,10 @@ void Server::closeServer() {
 		delete client;
 	}
 	_clients.clear();
-
-
-	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
-        delete *it;
-		
-    _channels.clear();
-    std::vector<Channel *> tempChannels;
-    tempChannels.swap(_channels);
-	
-    
 	for (std::vector<pollfd>::iterator it = _pollfds.begin(); it != _pollfds.end(); ++it) {
 		close(it->fd);
 	}
 	_pollfds.clear();
-	std::vector<pollfd> temp;
-	temp.swap(_pollfds);
 	close(_socket);
 
 	// Free all channels.
@@ -432,6 +401,3 @@ void Server::closeServer() {
 	_channels.clear();
 	_running = 0;
 }
-
-
-

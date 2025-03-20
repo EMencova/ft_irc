@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Privmsg.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/11 06:50:18 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/20 10:59:06 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,30 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 	if (space_pos != std::string::npos) {
 		std::string target = message.substr(8, space_pos - 8);
 		std::string private_message = message.substr(space_pos + 1);
+
+		std::string clean_message = private_message;
+		if (clean_message[0] == ':') {
+			clean_message = clean_message.substr(1);
+		}
+		
+		clean_message = clean_message.substr(clean_message.find_first_not_of(" "));
+
+		// remove invisible control characters (example: 0x01 SOH)
+		while (!clean_message.empty() && (clean_message[0] < 32)) {
+			clean_message.erase(0, 1);
+		}
+
+		clean_message.erase(clean_message.find_last_not_of("\r\n") + 1);
+
+		if (clean_message.find("DCC SEND") == 0) {
+			Client *target_client = getClientByNickname(target);
+			if (!target_client) {
+				sender->sendMessage(ERR_NOSUCHNICK("server", target) + "\r\n", sender->getFd());
+				return;
+			}
+			sender->handleDCCSend(target_client, clean_message);
+			return;
+		}	
 
 		//IRC-formatted message
 		std::string formatted_message = ":" + sender_nickname + "!" + sender_ident + "@" + sender_host +

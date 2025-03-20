@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/15 07:19:16 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/20 10:42:07 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ class Server
 		void addClientToChannel(Client *client, Channel *channel);
 		Channel *createNewChannel(std::string &channel_name, std::string &channel_password, Client *client);
 		Channel *getChannelByName(std::string &channel_name);
+		Client *getClientByNickname(const std::string &nickname);
 		Client *getClientByFd(int client_fd);
 		std::string readMessage(int client_fd, Client *client);
 		void authenticateClient(Client *client);
