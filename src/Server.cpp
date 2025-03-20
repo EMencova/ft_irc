@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/16 19:49:36 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/20 10:43:30 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,6 @@ int Server::createNewSocket() {
 		close(socket_fd);
 		return -1;
 	}
-
-	// int server_flags = fcntl(socket_fd, F_GETFL, 0);
-	// if (server_flags < 0) {
-	// 	irc_log("get server flags failed");
-	// 	close(socket_fd);
-	// 	return -1;
-	// }
 
 	if ((fcntl(socket_fd, F_SETFL, O_NONBLOCK)) < 0) {
 		irc_log("set server flags failed");
@@ -121,15 +114,6 @@ std::string Server::readMessage(int client_fd, Client *client) {
 				break;
 			}
 
-// 			bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-// 			if (bytes_read > 0) {
-// 				buffer[bytes_read] = '\0';
-// 				message.append(buffer);
-// 				if (message.find("\r\n") != std::string::npos) {
-// 					break;
-// 				}
-
-
 		} else if (bytes_read == 0) {
 			if (!client->getNickname().empty()) {
 				std::ostringstream oss;
@@ -188,13 +172,6 @@ void Server::thisClientConnect() {
 			irc_log("accept() failed");
 		return;
 	}
-
-	// int client_fds_flags = fcntl(client_fd, F_GETFL, 0);
-	// if (client_fds_flags < 0) {
-	// 	irc_log("get client flags failed");
-	// 	close(client_fd);
-	// 	return;
-	// }
 
 	if (fcntl(client_fd, F_SETFL,O_NONBLOCK) < 0) {
 		irc_log("set client flags failed");
@@ -389,6 +366,15 @@ Client *Server::getClientByFd(int client_fd) {
 	return _clients[client_fd];
 }
 
+Client *Server::getClientByNickname(const std::string &nickname) {
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == nickname) {
+            return it->second;
+        }
+    }
+    return NULL;
+}
+
 void Server::closeServer() {
 	irc_log("\033[0;31mClosing server... with ❤️  from us\033[0m");
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -414,4 +400,3 @@ void Server::closeServer() {
 	_channels.clear();
 	_running = 0;
 }
-
