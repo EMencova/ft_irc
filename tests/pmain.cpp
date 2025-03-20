@@ -41,13 +41,13 @@ int main () {
 
 	// IOmultiplexing
 	// first set the server fd to non_blocking
-	int server_flags = fcntl(server_fd, F_GETFL, 0);
-	if (server_flags < 0){
-		perror("get server flags failed");
-		close (server_fd);
-		return (-1);
-	}
-	if ((fcntl(server_fd, F_SETFL, server_flags | O_NONBLOCK)) < 0){
+	// int server_flags = fcntl(server_fd, F_GETFL, 0);
+	// if (server_flags < 0){
+	// 	perror("get server flags failed");
+	// 	close (server_fd);
+	// 	return (-1);
+	// }
+	if ((fcntl(server_fd, F_SETFL, O_NONBLOCK)) < 0){
 		perror("set server flags failed");
 		close (server_fd);
 		return (-1);
@@ -117,12 +117,12 @@ int main () {
 			}
 		else {
 				// Set this new client socket to non-blocking mode
-				int client_flags = fcntl(new_client_fd, F_GETFL, 0);
-				if (client_flags < 0){
-					perror("get client flags failed");
-					close (new_client_fd);
-				}
-				else if ((fcntl(new_client_fd, F_SETFL, client_flags | O_NONBLOCK)) < 0){
+				// int client_flags = fcntl(new_client_fd, F_GETFL, 0);
+				// if (client_flags < 0){
+				// 	perror("get client flags failed");
+				// 	close (new_client_fd);
+				// }
+				if ((fcntl(new_client_fd, F_SETFL,  O_NONBLOCK)) < 0){
 					perror("set client flags failed");
 					close (new_client_fd);
 				}

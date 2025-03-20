@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:23:00 by mac               #+#    #+#             */
-/*   Updated: 2025/03/15 07:18:47 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/20 10:52:44 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,15 @@
 #include <sys/socket.h>
 #include "Channel.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <unistd.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <algorithm>
-#include <unordered_map>
+#include <map>
+#include <cstring>
 
 #include "Channel.hpp"
 
@@ -70,6 +73,9 @@ class Client {
 		void joinChannel(Channel *channel);
 		void leaveChannel();
 		void appendToBuffer(const std::string &data);
+
+		// hanbdle file transfer
+		void handleDCCSend(Client *target, std::string message);
 };
 
 #endif
