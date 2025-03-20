@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/16 18:29:39 by eliskam          ###   ########.fr       */
+/*   Updated: 2025/03/20 21:27:09 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,6 @@
 #include <iostream>
 #include <sstream>
 
-
-// Global pointer to our server instance.
-Server *g_server = NULL;
-
-// Signal handler for SIGINT.
-void sigint_handler(int signum) {
-	(void)signum; // suppress unused parameter warning
-	if (g_server) {
-		g_server->closeServer();
-	}
-	exit(0);
-}
 
 // Global pointer to our server instance.
 Server *g_server = NULL;
