@@ -6,7 +6,7 @@
 #    By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/05 12:02:25 by mac               #+#    #+#              #
-#    Updated: 2025/03/20 11:08:58 by vconesa-         ###   ########.fr        #
+#    Updated: 2025/03/21 17:38:47 by vconesa-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ SRC = main.cpp \
 		src/commands/Topic.cpp \
 		src/commands/User.cpp \
 		src/commands/Dcc.cpp \
+		src/commands/Bot.cpp 
 
 OBJDIR = obj
 OBJ = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRC))

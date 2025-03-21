@@ -3,17 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/10 16:02:23 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/21 17:05:39 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 #include "../inc/response.hpp"
 
+std::vector<std::string> Channel::quotes;
+std::vector<std::string> Channel::jokes;
+
 Channel::Channel() {
+	initializeStaticData();
 }
 
 Channel::Channel(std::string &name, std::string &password, Client *client) {
@@ -24,6 +28,7 @@ Channel::Channel(std::string &name, std::string &password, Client *client) {
 	_operators.push_back(client);
 	if (!password.empty())
 		_modes.insert('k');
+	initializeStaticData();
 }
 
 Channel::~Channel() {
@@ -98,6 +103,8 @@ void Channel::sendMessageToClients(const std::string message, Client *sender) {
 	if (isOperator(sender)) {
 		sender_nick = "@" + sender_nick;
 	}
+
+	Bot(message);
 
 	// IRC-formatted message:
 	// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n

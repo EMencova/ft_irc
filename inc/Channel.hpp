@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mac <mac@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 08:25:24 by mac               #+#    #+#             */
-/*   Updated: 2025/03/05 11:21:22 by mac              ###   ########.fr       */
+/*   Updated: 2025/03/21 17:41:59 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,10 @@ class Channel {
 		std::string				_topic;
 		std::vector<Client *>	_operators;
 		std::vector<Client *>	_invitedClients;
+
+		// variables for bot
+		static std::vector<std::string> quotes;
+    	static std::vector<std::string> jokes;
 
 	public:
 		Channel();
@@ -74,6 +78,10 @@ class Channel {
 		void addInvited(Client *client);
 		bool isInvited(Client *client) const;
 		void removeInvited(Client *client);
+
+		// Bot
+		void Bot(const std::string &message);
+		void initializeStaticData(void);
 };
 
 #endif
