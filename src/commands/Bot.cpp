@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:50:14 by vconesa-          #+#    #+#             */
-/*   Updated: 2025/03/21 17:36:58 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/21 20:30:59 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,42 @@ void Channel::initializeStaticData(void){
     }
 }
 
+std::string extractCommand(const std::string &message) {
+    std::string command;
+
+    // Check if the message starts with '[' and contains ']:' (this indicates a username is present)
+    size_t start_pos = message.find("[");
+    size_t end_pos = message.find("]:");
+
+    // If it has a username and a colon (like [user]: !command)
+    if (start_pos != std::string::npos && end_pos != std::string::npos) {
+        // Extract everything after ']:'
+        command = message.substr(end_pos + 2);  // Start after the `]:`
+    } else {
+        // Otherwise, treat the message as the command directly
+        command = message;
+    }
+
+    // Trim any leading/trailing spaces or newlines
+    size_t first = command.find_first_not_of(" \t\r\n");
+    if (first != std::string::npos) {
+        command = command.substr(first);
+    }
+
+    size_t last = command.find_last_not_of(" \t\r\n");
+    if (last != std::string::npos) {
+        command = command.substr(0, last + 1);
+    }
+
+    return command;
+}
+
+
 void Channel::Bot(const std::string &message) {
     // Commands for the bot: !time, !joke, !people, !quote, !help
-    if (message == "!time") {
+	std::string command = extractCommand(message);
+
+    if (command == "!time") {
         time_t now = time(0);
         struct tm *ltm = localtime(&now);
         char timeBuffer[100];
@@ -55,7 +88,7 @@ void Channel::Bot(const std::string &message) {
             (*it)->sendMessage(bot_message, (*it)->getFd());
         }
     }
-    else if (message == "!joke") {
+    else if (command == "!joke") {
         static bool seeded = false;
         if (!seeded) {
             srand(time(0)); // Use the current time as seed for rand()
@@ -68,7 +101,7 @@ void Channel::Bot(const std::string &message) {
             (*it)->sendMessage(joke_message, (*it)->getFd());
         }
     }
-    else if (message == "!people") {
+    else if (command == "!people") {
         std::string people_message = ":PeopleBot!bot@localhost PRIVMSG " + this->getName() + " :Connected users: ";
         for (clients_iterator it = _clients.begin(); it != _clients.end(); ++it) {
             people_message += (*it)->getNickname() + " ";
@@ -79,7 +112,7 @@ void Channel::Bot(const std::string &message) {
             (*it)->sendMessage(people_message, (*it)->getFd());
         }
     }
-    else if (message == "!quote") {
+    else if (command == "!quote") {
         static bool seeded = false;
         if (!seeded) {
             srand(time(0));  // Use the current time as seed for rand()
@@ -92,7 +125,7 @@ void Channel::Bot(const std::string &message) {
             (*it)->sendMessage(quote_message, (*it)->getFd());
         }
     }
-    else if (message == "!help") {
+    else if (command == "!help") {
         std::string help_message = ":HelpBot!bot@localhost PRIVMSG " + this->getName() + " :Available commands: !time, !joke, !people, !quote, !help.\r\n";
         for (clients_iterator it = _clients.begin(); it != _clients.end(); ++it) {
             (*it)->sendMessage(help_message, (*it)->getFd());
