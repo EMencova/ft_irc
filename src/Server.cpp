@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/21 17:40:13 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/21 18:56:07 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,6 +388,7 @@ void Server::closeServer() {
 		delete client;
 	}
 	_clients.clear();
+	std::map<int, Client *>().swap(_clients);
 	for (std::vector<pollfd>::iterator it = _pollfds.begin(); it != _pollfds.end(); ++it) {
 		close(it->fd);
 	}
@@ -400,5 +401,6 @@ void Server::closeServer() {
 		delete *it;
 	}
 	_channels.clear();
+	std::vector<Channel *>().swap(_channels);
 	_running = 0;
 }
