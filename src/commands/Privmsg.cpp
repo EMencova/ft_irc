@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 11:27:18 by mac               #+#    #+#             */
-/*   Updated: 2025/03/20 10:59:06 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/21 17:18:53 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 
 		//IRC-formatted message
 		std::string formatted_message = ":" + sender_nickname + "!" + sender_ident + "@" + sender_host +
-			" PRIVMSG " + target + " :" + private_message + "\r\n";
+			" PRIVMSG " + target + " :" + clean_message + "\r\n";
 
 		if (!target.empty() && target[0] == '#') {
 			Channel *channel = getChannelByName(target);
@@ -72,7 +72,7 @@ void Server::privateMessageClient(Client *sender, std::string message) {
 					sender->sendMessage(error_message, sender->getFd());
 					return;
 				}
-				channel->sendMessageToClients(formatted_message, sender);
+				channel->sendMessageToClients(clean_message, sender);
 			} else {
 				std::string error_message = ERR_NOSUCHCHANNEL("server", target) + "\r\n";
 				sender->sendMessage(error_message, sender->getFd());
