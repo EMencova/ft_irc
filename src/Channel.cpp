@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 09:09:39 by mac               #+#    #+#             */
-/*   Updated: 2025/03/21 17:05:39 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/21 20:31:23 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,6 @@ void Channel::sendMessageToClients(const std::string message, Client *sender) {
 		sender_nick = "@" + sender_nick;
 	}
 
-	Bot(message);
-
 	// IRC-formatted message:
 	// :<sender_nick>!<sender_ident>@<sender_host> PRIVMSG <channel> :<message>\r\n
 	std::string formatted_message = ":" + sender_nick + "!" + sender_ident + "@" + sender_host +
@@ -116,6 +114,7 @@ void Channel::sendMessageToClients(const std::string message, Client *sender) {
 			(*it)->sendMessage(formatted_message, (*it)->getFd());
 		}
 	}
+	Bot(message);
 }
 
 void Channel::setAdmin(Client *admin) {
