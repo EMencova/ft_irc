@@ -6,7 +6,7 @@
 /*   By: vconesa- <vconesa-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 13:13:22 by emencova          #+#    #+#             */
-/*   Updated: 2025/03/20 10:43:30 by vconesa-         ###   ########.fr       */
+/*   Updated: 2025/03/21 17:40:13 by vconesa-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -392,6 +392,7 @@ void Server::closeServer() {
 		close(it->fd);
 	}
 	_pollfds.clear();
+	std::vector<pollfd>().swap(_pollfds);
 	close(_socket);
 
 	// Free all channels.
